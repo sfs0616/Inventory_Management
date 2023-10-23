@@ -71,6 +71,8 @@ public abstract class Goods implements Serializable, Comparable<Goods> {
     public void setSupermarketBayNumber(int supermarketBayNumber) {
         this.supermarketBayNumber = supermarketBayNumber;
     }
+    
+    
 
     /**
      * Overrides the toString method to provide a string representation of the Goods object.

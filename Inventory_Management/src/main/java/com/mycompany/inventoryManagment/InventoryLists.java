@@ -17,6 +17,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.InputMismatchException;
@@ -25,23 +28,23 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
- * A class representing the inventory lists for different storage types.
- * This class implements the InventoryManager and InventoryReaderWriter interfaces,
- * providing methods to manage the inventory, including changing the number of pallets and shelves,
- * adding goods, printing the inventory, and more.
- * It also maintains separate lists for different storage types such as frozen, refrigerated, room temperature, and flammable goods.
- * 
- * The methods in this class allow for inventory management functionalities such as changing storage capacity,
- * adding goods, and printing the inventory for different storage types.
- * It also handles data persistence using various file formats and interactions with Excel spreadsheets.
- * 
+ * A class representing the inventory lists for different storage types. This
+ * class implements the InventoryManager and InventoryReaderWriter interfaces,
+ * providing methods to manage the inventory, including changing the number of
+ * pallets and shelves, adding goods, printing the inventory, and more. It also
+ * maintains separate lists for different storage types such as frozen,
+ * refrigerated, room temperature, and flammable goods.
+ *
+ * The methods in this class allow for inventory management functionalities such
+ * as changing storage capacity, adding goods, and printing the inventory for
+ * different storage types. It also handles data persistence using various file
+ * formats and interactions with Excel spreadsheets.
+ *
  * @author Avraa
  */
-
 //https://docs.oracle.com/javase/tutorial/jndi/objects/serial.html
-public class InventoryLists implements InventoryManager, InventoryReaderWriter{
+public class InventoryLists implements InventoryManager, InventoryReaderWriter {
 
-    
     private User user;
 
     ArrayList<Goods> frozengoods = new ArrayList<>();
@@ -56,20 +59,31 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
     ArrayList<Goods> roomtemperaturegoods = new ArrayList<>();
     ProductStorageType roomtemperatureinventory = new RoomTemperatureType(roomtemperaturegoods);
 
+    InventoryDatabaseManager dbManager;
     
+   
+
+    public InventoryLists() throws SQLException {
+        
+    }
+    
+    public void establishDatabase(){
+        dbManager = new InventoryDatabaseManager(this.user);
+    }
+    
+
     /**
      * Get the current user.
-     * 
+     *
      * @return The current user.
      */
     public User getUser() {
         return user;
     }
-    
-    
-     /**
+
+    /**
      * Set the current user.
-     * 
+     *
      * @param user The user to set.
      */
     public void setUser(User user) {
@@ -78,7 +92,6 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
 
     Scanner keyboard = new Scanner(System.in);
 
-    
     @Override
     public void changeNumberOfPallets() {
         System.out.println("Which warehouse zone would you like to change number of pallets?");
@@ -88,7 +101,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
         System.out.println("3: Refrigerated");
         System.out.println("4: Room temperature");
 
-        int case1Input = -1; 
+        int case1Input = -1;
 
         try {
             case1Input = keyboard.nextInt();
@@ -121,7 +134,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
             }
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid number.");
-            keyboard.nextLine(); 
+            keyboard.nextLine();
         }
     }
 
@@ -134,7 +147,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
         System.out.println("3: Refrigerated");
         System.out.println("4: Room temperature");
 
-        int case2Input = -1; 
+        int case2Input = -1;
 
         try {
             case2Input = keyboard.nextInt();
@@ -166,7 +179,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
             }
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid number.");
-            keyboard.nextLine(); 
+            keyboard.nextLine();
         }
     }
 
@@ -174,7 +187,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
     public void addGoods() {
         System.out.println("Would you like to add a (1) palletized good or (2) a bin pallet type good (i.e fruit and veggies): ");
 
-        int goodstype = -1; 
+        int goodstype = -1;
 
         try {
             goodstype = keyboard.nextInt();
@@ -188,7 +201,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
             }
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid number.");
-            keyboard.nextLine(); 
+            keyboard.nextLine();
         }
     }
 
@@ -214,16 +227,15 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
             System.out.println(goods.toString());
         }
     }
-    
-    
-    
-    /**
-     * Adds palletized goods to the inventory.
-     * This method prompts the user to input details about the goods, including stock code, description, storage type,
-     * maximum number of cartons per pallet, maximum number of goods per carton, current number of goods, and shelf information.
-     * The method then creates a new CartonizedGoods object based on the input and adds it to the appropriate storage type list.
-     */
 
+    /**
+     * Adds palletized goods to the inventory. This method prompts the user to
+     * input details about the goods, including stock code, description, storage
+     * type, maximum number of cartons per pallet, maximum number of goods per
+     * carton, current number of goods, and shelf information. The method then
+     * creates a new CartonizedGoods object based on the input and adds it to
+     * the appropriate storage type list.
+     */
     public void addPalletGoods() {
         Scanner keyboard = new Scanner(System.in);
 
@@ -233,7 +245,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
             keyboard.nextLine();
             System.out.println("Please enter a brief product description: ");
             String description = keyboard.nextLine();
-            char storageType = ' '; 
+            char storageType = ' ';
 
             do {
                 System.out.println("Please enter a storage type from the list below: ");
@@ -246,7 +258,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
                 try {
                     if (input.length() == 1) {
                         storageType = input.charAt(0);
-                        storageType = Character.toUpperCase(storageType); 
+                        storageType = Character.toUpperCase(storageType);
                     } else {
                         throw new IllegalArgumentException("Invalid input. Please enter a single character.");
                     }
@@ -309,18 +321,18 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
             }
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid number.");
-            keyboard.nextLine(); 
+            keyboard.nextLine();
         }
     }
-    
-    
-    /**
-     * Adds bin pallet type goods to the inventory.
-     * This method prompts the user to input details about the goods, including stock code, description, storage type,
-     * maximum number of kg per bin pallet, current number of kg, and shelf information.
-     * The method then creates a new BinGoodsOnPallet object based on the input and adds it to the appropriate storage type list.
-     */
 
+    /**
+     * Adds bin pallet type goods to the inventory. This method prompts the user
+     * to input details about the goods, including stock code, description,
+     * storage type, maximum number of kg per bin pallet, current number of kg,
+     * and shelf information. The method then creates a new BinGoodsOnPallet
+     * object based on the input and adds it to the appropriate storage type
+     * list.
+     */
     public void addBinGoods() {
         Scanner keyboard = new Scanner(System.in);
 
@@ -342,7 +354,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
                 try {
                     if (input.length() == 1) {
                         storageType = input.charAt(0);
-                        storageType = Character.toUpperCase(storageType); 
+                        storageType = Character.toUpperCase(storageType);
                     } else {
                         throw new IllegalArgumentException("Invalid input. Please enter a single character.");
                     }
@@ -400,13 +412,14 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
             }
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid number.");
-            keyboard.nextLine(); 
+            keyboard.nextLine();
         }
     }
 
     /**
-     * Moves a specified amount of kg from a bin pallet type good in the warehouse to the supermarket shelf.
-     * 
+     * Moves a specified amount of kg from a bin pallet type good in the
+     * warehouse to the supermarket shelf.
+     *
      * @param good The BinGoodsOnPallet object to move units from.
      * @param amountToMove The amount of kg to move.
      */
@@ -416,14 +429,14 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
 
         good.setCurrentKgOnShelf(good.getCurrentKgOnShelf() + amountToMove);
     }
-    
+
     /**
-     * Moves a specified number of units from a cartonized goods item in the warehouse to the supermarket shelf.
-     * 
+     * Moves a specified number of units from a cartonized goods item in the
+     * warehouse to the supermarket shelf.
+     *
      * @param good The CartonizedGoods object to move units from.
      * @param amountToMove The number of units to move.
      */
-
     public void CartonizedMoveUnits(CartonizedGoods good, int amountToMove) {
 
         good.setCurrentGoodsNumber(good.getCurrentGoodsNumber() - amountToMove);
@@ -432,12 +445,12 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
     }
 
     /**
-     * 
-     * Searches goods arrays for goods matching stock code, returns goods data to user and then asks them to input what quantity they want to move. 
-     * 
-     * 
+     *
+     * Searches goods arrays for goods matching stock code, returns goods data
+     * to user and then asks them to input what quantity they want to move.
+     *
+     *
      */
-    
     @Override
     public void moveItemFromWarehouseToShelf() {
         Scanner keyboard = new Scanner(System.in);
@@ -445,7 +458,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
         try {
             System.out.println("Please enter a stock code: ");
             int stockCode = keyboard.nextInt();
-            keyboard.nextLine(); 
+            keyboard.nextLine();
 
             Goods foundGood = null;
             int returnStockCode = 0;
@@ -490,12 +503,12 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
                 if (foundGood instanceof CartonizedGoods) {
                     System.out.println("How many units would you like to take from the warehouse and add to the supermarket bay?");
                     int units = keyboard.nextInt();
-                    CartonizedGoods cartonizedGoods = (CartonizedGoods) foundGood; 
+                    CartonizedGoods cartonizedGoods = (CartonizedGoods) foundGood;
                     CartonizedMoveUnits(cartonizedGoods, units);
                 } else if (foundGood instanceof BinGoodsOnPallet) {
                     System.out.println("How many kg would you like to take from the warehouse and add to the supermarket bay?");
                     double kg = keyboard.nextDouble();
-                    BinGoodsOnPallet bingoods = (BinGoodsOnPallet) foundGood; 
+                    BinGoodsOnPallet bingoods = (BinGoodsOnPallet) foundGood;
                     binGoodsmoveUnits(bingoods, kg);
                 }
                 returnStockCode = foundGood.getStockCode();
@@ -504,12 +517,11 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
             }
         } catch (InputMismatchException e) {
             System.out.println("Invalid input. Please enter a valid number.");
-            keyboard.nextLine(); 
+            keyboard.nextLine();
         }
     }
 
     ///https://mkyong.com/java/how-to-read-and-write-java-object-to-a-file/ (Source for serialized files work);
-    
     @Override
     public void readObjectsFromSerializedText(ArrayList<Goods> readgoods, String filePath)
             throws IOException, ClassNotFoundException {
@@ -522,18 +534,19 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
                 readgoods.add(good);
             }
         } catch (EOFException e) {
-            
+
         } catch (FileNotFoundException e) {
-            
+
             System.out.println("File not found: " + e.getMessage());
         }
     }
 
-/**
-     * 
-     * Helps load user data from serialized objects within text files within the user directory.
-     * 
-     * 
+    /**
+     *
+     * Helps load user data from serialized objects within text files within the
+     * user directory.
+     *
+     *
      */
     public void loadSerializedDataForUser(User user) {
         String userDirectoryPath = System.getProperty("user.dir") + File.separator + user.getUserName();
@@ -545,7 +558,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
                 if (serializedFiles != null) {
                     for (File serializedFile : serializedFiles) {
                         String fileName = serializedFile.getName().replace("serialized", "").replace(".txt", "");
-                        ArrayList<Goods> goodsList = getGoodsListByFileName(fileName); 
+                        ArrayList<Goods> goodsList = getGoodsListByFileName(fileName);
                         String filePath = userDirectoryPath + File.separator + "serialized" + fileName + ".txt";
                         readObjectsFromSerializedText(goodsList, filePath);
                     }
@@ -576,7 +589,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
                     return refrigeratedgoods;
                 case "RoomTemperature":
                     return roomtemperaturegoods;
-                
+
                 default:
                     throw new IllegalArgumentException("Unsupported file name: " + fileName);
             }
@@ -586,13 +599,12 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
         }
     }
 
-    
     ///https://mkyong.com/java/how-to-read-and-write-java-object-to-a-file/
     @Override
     public void writeObjectsToSerializedText(ArrayList<Goods> writegoods, String listName, User userToWrite) {
         try {
             String userDirectoryPath = System.getProperty("user.dir") + File.separator + userToWrite.getUserName();
-            String filePath = userDirectoryPath + File.separator + "serialized" + listName + ".txt"; 
+            String filePath = userDirectoryPath + File.separator + "serialized" + listName + ".txt";
 
             try ( FileOutputStream f = new FileOutputStream(new File(filePath));  ObjectOutputStream o = new ObjectOutputStream(f)) {
 
@@ -620,18 +632,16 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
     }
 
 //unimplemented below as serves no purpose in current project scope
-    
     public void formattedWriteObjectsToTextFile(ArrayList<Goods> goodsList, String fileName, User user) throws IOException {
         String userDirectoryPath = System.getProperty("user.dir") + File.separator + user.getUserName();
         try ( FileWriter writer = new FileWriter(new File(userDirectoryPath, "savedInventory_" + fileName + ".txt"))) {
-            
+
             writer.write("Description\tStock Code\tStorage Type\tWarehouse Bay Number\tSupermarket Bay Number\t"
                     + "Current Kg In Warehouse Bin\tCurrent Kg on SuperMarket Shelf\tMax Kg per Bin\tMax Kg on shelf\t"
                     + "Max number of cartons per pallet\tMax number of goods per carton\tCurrent total goods in warehouse\t"
                     + "Current total cartons left in warehouse\tMax number of goods that can fit on supermarket shelf\t"
                     + "Current number of goods on supermarket shelf" + System.lineSeparator());
 
-            
             for (Goods goods : goodsList) {
                 if (goods instanceof CartonizedGoods) {
                     CartonizedGoods cartonizedGoods = (CartonizedGoods) goods;
@@ -669,18 +679,17 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
         try ( BufferedReader reader = new BufferedReader(new FileReader("savedInventory_" + fileName + ".txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-               
+
             }
         }
     }
 
-    
     //Writes objects to excel spreadsheet, works in similar way to how serialized text files are written however method body is different.
     /**
-     * 
+     *
      *
      * Chat gpt assisted with developing and formatting this method.
-     * 
+     *
      */
     @Override
     public void writeObjectsToExcel(ArrayList<Goods> goodsList, String fileName, User user) throws IOException {
@@ -690,7 +699,6 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
         try ( Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet(fileName);
 
-            
             Row headerRow = sheet.createRow(0);
             String[] columns = {
                 "Description", "Stock Code", "Storage Type", "Warehouse Bay Number", "Supermarket Bay Number",
@@ -703,7 +711,6 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
                 cell.setCellValue(columns[i]);
             }
 
-            
             int rowIndex = 1;
             for (Goods goods : goodsList) {
                 Row dataRow = sheet.createRow(rowIndex++);
@@ -735,7 +742,6 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
                 sheet.autoSizeColumn(i);
             }
 
-            
             try ( FileOutputStream fos = new FileOutputStream(excelFilePath)) {
                 workbook.write(fos);
             } catch (IOException e) {
@@ -743,19 +749,18 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
             }
         }
     }
+
     // Chat gpt assisted with formatting this method.
     @Override
     public void readObjectsFromExcel(ArrayList<Goods> readgoods, String filePath) {
         try ( Workbook workbook = new XSSFWorkbook(new FileInputStream(filePath))) {
             Sheet sheet = workbook.getSheetAt(0);
 
-            
             int rowIndex = 1;
 
             while (rowIndex <= sheet.getLastRowNum()) {
                 Row row = sheet.getRow(rowIndex);
 
-                
                 try {
                     String description = getStringCellValue(row.getCell(0));
                     int stockCode = (int) getNumericCellValue(row.getCell(1));
@@ -793,6 +798,8 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
         } catch (IOException e) {
             System.out.println("An error occurred while reading objects from Excel file: " + e.getMessage());
         }
+        System.out.println("Goods saved to database");
+        
     }
 
 // Suggested by chat gpt currently unimplemented but will use later to increase reliability of excel imports/exports.
@@ -822,10 +829,11 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
     }
 
     /**
-     * 
-     * Reads in Excel spreadsheet data to inventory object arrays for each category of storage type. Similar formatting to existing loadData method.
-     * 
-     * 
+     *
+     * Reads in Excel spreadsheet data to inventory object arrays for each
+     * category of storage type. Similar formatting to existing loadData method.
+     *
+     *
      */
     public void loadExcelDataForUser(User user) {
         String userDirectoryPath = System.getProperty("user.dir") + File.separator + user.getUserName();
@@ -833,13 +841,13 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
 
         try {
             if (userDirectory.exists() && userDirectory.isDirectory()) {
-                
+
                 File[] excelFiles = userDirectory.listFiles((dir, name) -> name.startsWith("savedInventory_") && name.endsWith(".xlsx"));
                 if (excelFiles != null) {
                     for (File excelFile : excelFiles) {
                         String fileName = excelFile.getName().replace("savedInventory_", "").replace(".xlsx", "");
                         ArrayList<Goods> goodsList = getGoodsListByFileName(fileName); // Implement this method
-                        String filePath = userDirectoryPath + File.separator + "savedInventory_" + fileName + ".xlsx"; 
+                        String filePath = userDirectoryPath + File.separator + "savedInventory_" + fileName + ".xlsx";
 
                         readObjectsFromExcel(goodsList, filePath);
 
@@ -856,6 +864,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
 
     }
 //Saves serialized objects to text file
+
     public void saveToFile(User userToWrite) {
         this.writeObjectsToSerializedText(this.flammablegoods, "Flammable", userToWrite);
         this.writeObjectsToSerializedText(this.frozengoods, "Frozen", userToWrite);
@@ -863,6 +872,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
         this.writeObjectsToSerializedText(this.roomtemperaturegoods, "RoomTemperature", userToWrite);
     }
 //Saves serialized objects to text file and saves object data to excel spreadsheets too. 
+
     public void saveToFileAndUpdateExcel(User userToWrite) throws IOException {
         this.writeObjectsToSerializedText(this.flammablegoods, "Flammable", userToWrite);
         this.writeObjectsToSerializedText(this.frozengoods, "Frozen", userToWrite);
@@ -876,6 +886,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
 
     }
 //Saves user inventory data to readable text files
+
     public void saveFilesToText(User userToWrite) {
         this.writeObjectsToTextFile(this.flammablegoods, "Flammable", userToWrite);
         this.writeObjectsToTextFile(this.frozengoods, "Frozen", userToWrite);
@@ -894,6 +905,87 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter{
     }
 
     
-  
+    
+    
+    public void syncObjectsToDB(ArrayList<Goods> goodsArray, String tableName) {
+        //dbManager.checkUserDataBaseExists()
+        
+    try {
+        for (Goods goods : goodsArray) {
+            String checkSQL = "SELECT * FROM " + tableName + " WHERE STOCK_CODE = ?";
+            
+            try (PreparedStatement checkStmt = dbManager.conn.prepareStatement(checkSQL)) {
+                checkStmt.setInt(1, goods.getStockCode());
+                
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (!rs.next()) {
+                         // Insert new row
+                    PreparedStatement insertStmt;
+                    if (goods instanceof CartonizedGoods) {
+                        String insertSQL = "INSERT INTO " + tableName + " (STOCK_CODE, PRODUCT_DESCRIPTION, STORAGE_TYPE, WAREHOUSE_BAY_NUM, SUPERMARKET_BAY_NUM, CURRENT_GOODS_TOTAL, CURRENT_CARTONS_TOTAL, CURRENT_TOTAL_ITEMS_SHELF) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                        String productStorage = String.valueOf(goods.getStorageType());
+                        insertStmt = dbManager.conn.prepareStatement(insertSQL);
+                        insertStmt.setInt(1, goods.getStockCode());
+                        insertStmt.setString(2, goods.getDescription());
+                        insertStmt.setString(3, productStorage);
+                        insertStmt.setInt(4, goods.getWarehouseBayNumber());
+                        insertStmt.setInt(5, goods.getSupermarketBayNumber());
+                        insertStmt.setInt(6, ((CartonizedGoods) goods).getCurrentGoodsNumber());
+                        insertStmt.setInt(7, ((CartonizedGoods) goods).getCurrentCartonsNumber());
+                        insertStmt.setInt(8, ((CartonizedGoods) goods).getCurrentNumberOfItemsOnShelf());
+
+                        insertStmt.executeUpdate();
+                    } else if (goods instanceof BinGoodsOnPallet) {
+                        String insertSQL = "INSERT INTO " + tableName + " (STOCK_CODE, PRODUCT_DESCRIPTION, STORAGE_TYPE, WAREHOUSE_BAY_NUM, SUPERMARKET_BAY_NUM, CURRENT_KG_BIN, CURRENT_KG_SHELF) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                        String productStorage = String.valueOf(goods.getStorageType());
+                        insertStmt = dbManager.conn.prepareStatement(insertSQL);
+                        insertStmt.setInt(1, goods.getStockCode());
+                        insertStmt.setString(2, goods.getDescription());
+                        insertStmt.setString(3, productStorage);
+                        insertStmt.setInt(4, goods.getWarehouseBayNumber());
+                        insertStmt.setInt(5, goods.getSupermarketBayNumber());
+                        insertStmt.setDouble(6, ((BinGoodsOnPallet) goods).getCurrentKgPerBin());
+                        insertStmt.setDouble(7, ((BinGoodsOnPallet) goods).getCurrentKgOnShelf());
+
+                        insertStmt.executeUpdate();
+                    }
+                    } else {
+                        if (goods instanceof CartonizedGoods) {
+                            if (rs.getInt("CURRENT_GOODS_TOTAL") != ((CartonizedGoods) goods).getCurrentGoodsNumber() 
+                                || rs.getInt("CURRENT_CARTONS_TOTAL") != ((CartonizedGoods) goods).getCurrentCartonsNumber() 
+                                || rs.getInt("CURRENT_TOTAL_ITEMS_SHELF") != ((CartonizedGoods) goods).getCurrentNumberOfItemsOnShelf()) {
+                                
+                                String updateSQL = "UPDATE " + tableName + " SET CURRENT_GOODS_TOTAL = ?, CURRENT_CARTONS_TOTAL = ?, CURRENT_TOTAL_ITEMS_SHELF = ? WHERE STOCK_CODE = ?";
+                                try (PreparedStatement updateStmt = dbManager.conn.prepareStatement(updateSQL)) {
+                                    updateStmt.setInt(1, ((CartonizedGoods) goods).getCurrentGoodsNumber());
+                                    updateStmt.setInt(2, ((CartonizedGoods) goods).getCurrentCartonsNumber());
+                                    updateStmt.setInt(3, ((CartonizedGoods) goods).getCurrentNumberOfItemsOnShelf());
+                                    updateStmt.setInt(4, goods.getStockCode());
+
+                                    updateStmt.executeUpdate();
+                                }
+                            } 
+
+                        } else if (goods instanceof BinGoodsOnPallet) {
+                            if (rs.getDouble("CURRENT_KG_BIN") != ((BinGoodsOnPallet) goods).getCurrentKgPerBin() 
+                                || rs.getDouble("CURRENT_KG_SHELF") != ((BinGoodsOnPallet) goods).getCurrentKgOnShelf()) {
+                                
+                                String updateSQL = "UPDATE " + tableName + " SET CURRENT_KG_BIN = ?, CURRENT_KG_SHELF = ? WHERE STOCK_CODE = ?";
+                                try (PreparedStatement updateStmt = dbManager.conn.prepareStatement(updateSQL)) {
+                                    updateStmt.setDouble(1, ((BinGoodsOnPallet) goods).getCurrentKgPerBin());
+                                    updateStmt.setDouble(2, ((BinGoodsOnPallet) goods).getCurrentKgOnShelf());
+                                    updateStmt.setInt(3, goods.getStockCode());
+                                    updateStmt.executeUpdate();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } catch (SQLException e) {
+        System.err.println("Error syncing objects to DB: " + e.getMessage());
+    }
+}
 
 }

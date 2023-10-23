@@ -12,3 +12,4 @@ com\mycompany\inventoryManagment\ProductStorageType.class
 com\mycompany\inventoryManagment\Goods.class
 com\mycompany\inventoryManagment\InventoryManager.class
 com\mycompany\inventoryManagment\CartonizedGoods.class
+com\mycompany\inventoryManagment\InventoryDatabaseManager.class

@@ -15,6 +15,8 @@ import java.io.Serializable;
  */
 public class User implements Serializable {
     String userName;
+    String databaseURL;
+    
 
     /**
      * Constructs a new User object.
@@ -40,6 +42,17 @@ public class User implements Serializable {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+    
+    public String getDatabaseURL(){
+        return this.databaseURL;
+    }
+
+    public void setDatabaseURL(String databaseURL) {
+        this.databaseURL = databaseURL;
+    }
+    
+    
+    
 }
 
 

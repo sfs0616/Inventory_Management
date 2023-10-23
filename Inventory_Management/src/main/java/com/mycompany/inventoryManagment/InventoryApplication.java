@@ -7,6 +7,7 @@ import java.util.InputMismatchException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 /**
@@ -17,14 +18,15 @@ import java.util.Scanner;
 
 public class InventoryApplication {
 
-    public static void main(String[] args) throws IOException, FileNotFoundException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, FileNotFoundException, ClassNotFoundException, SQLException {
         // Initialize exit flag and scanner for user input
         boolean exitProgram = false;
         Scanner keyboard = new Scanner(System.in);
+        InventoryLists warehousesupermarket = new InventoryLists();
         // Initialize user management, user, and inventory objects
         UserManagement users = new UserManagement();
         User userToWrite = new User();
-        InventoryLists warehousesupermarket = new InventoryLists();
+        
         // Load existing user data from file
         users.loadFromFile("users.dat");
 
@@ -46,6 +48,7 @@ public class InventoryApplication {
             if (matchedUser != null) {
 
                 userToWrite = matchedUser;
+                
                 warehousesupermarket.setUser(userToWrite);
                 int dataOrExcel = -1; 
         // Loop until valid dataOrExcel choice is made
@@ -90,6 +93,11 @@ public class InventoryApplication {
                 System.out.println("Failed to create user directory.");
             }
         }
+        warehousesupermarket.establishDatabase();
+        Boolean userDat = warehousesupermarket.dbManager.checkUserDataBaseExists();
+        
+            warehousesupermarket.dbManager.establishConnection();
+        
 
         System.out.println("Welcome to the Inventory Application.");
 
@@ -184,6 +192,13 @@ public class InventoryApplication {
         warehousesupermarket.saveFilesToText(userToWrite);
         System.out.println("Saved files");
         System.out.println("Exiting the Inventory Application.");
+        
+        warehousesupermarket.syncObjectsToDB(warehousesupermarket.frozengoods, "FROZEN_GOODS");
+        warehousesupermarket.syncObjectsToDB(warehousesupermarket.flammablegoods, "FLAMMABLE_GOODS ");
+        warehousesupermarket.syncObjectsToDB(warehousesupermarket.roomtemperaturegoods, "ROOM_TEMP_GOODS ");
+        warehousesupermarket.syncObjectsToDB(warehousesupermarket.refrigeratedgoods, "REFRIGERATED_GOODS ");
+        
+        warehousesupermarket.dbManager.closeConnections();
     }
 
 }
