@@ -50,7 +50,10 @@ public class User implements Serializable {
     public void setDatabaseURL(String databaseURL) {
         this.databaseURL = databaseURL;
     }
-    
+   @Override 
+   public String toString(){
+       return userName + " " + databaseURL;
+   }
     
     
 }

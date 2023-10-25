@@ -60,6 +60,22 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
     ProductStorageType roomtemperatureinventory = new RoomTemperatureType(roomtemperaturegoods);
 
     InventoryDatabaseManager dbManager;
+
+    public ArrayList<Goods> getFrozengoods() {
+        return frozengoods;
+    }
+
+    public ArrayList<Goods> getRefrigeratedgoods() {
+        return refrigeratedgoods;
+    }
+
+    public ArrayList<Goods> getFlammablegoods() {
+        return flammablegoods;
+    }
+
+    public ArrayList<Goods> getRoomtemperaturegoods() {
+        return roomtemperaturegoods;
+    }
     
    
 
@@ -183,27 +199,27 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
         }
     }
 
-    @Override
-    public void addGoods() {
-        System.out.println("Would you like to add a (1) palletized good or (2) a bin pallet type good (i.e fruit and veggies): ");
-
-        int goodstype = -1;
-
-        try {
-            goodstype = keyboard.nextInt();
-
-            if (goodstype == 1) {
-                this.addPalletGoods();
-            } else if (goodstype == 2) {
-                this.addBinGoods();
-            } else {
-                System.out.println("Invalid input. Please enter 1 or 2.");
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter a valid number.");
-            keyboard.nextLine();
-        }
-    }
+//    @Override
+//    public void addGoods() {
+//        System.out.println("Would you like to add a (1) palletized good or (2) a bin pallet type good (i.e fruit and veggies): ");
+//
+//        int goodstype = -1;
+//
+//        try {
+//            goodstype = keyboard.nextInt();
+//
+//            if (goodstype == 1) {
+//                this.addPalletGoods();
+//            } else if (goodstype == 2) {
+//                this.addBinGoods();
+//            } else {
+//                System.out.println("Invalid input. Please enter 1 or 2.");
+//            }
+//        } catch (InputMismatchException e) {
+//            System.out.println("Invalid input. Please enter a valid number.");
+//            keyboard.nextLine();
+//        }
+//    }
 
     @Override
     public void printInventory() {
@@ -236,94 +252,94 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
      * creates a new CartonizedGoods object based on the input and adds it to
      * the appropriate storage type list.
      */
-    public void addPalletGoods() {
-        Scanner keyboard = new Scanner(System.in);
-
-        try {
-            System.out.println("Please enter a new stock code: ");
-            int stockCode = keyboard.nextInt();
-            keyboard.nextLine();
-            System.out.println("Please enter a brief product description: ");
-            String description = keyboard.nextLine();
-            char storageType = ' ';
-
-            do {
-                System.out.println("Please enter a storage type from the list below: ");
-                System.out.println("'E': Flammable");
-                System.out.println("'F': Frozen");
-                System.out.println("'C': Refrigerated");
-                System.out.println("'R': Room temperature");
-
-                String input = keyboard.next();
-                try {
-                    if (input.length() == 1) {
-                        storageType = input.charAt(0);
-                        storageType = Character.toUpperCase(storageType);
-                    } else {
-                        throw new IllegalArgumentException("Invalid input. Please enter a single character.");
-                    }
-
-                    if (storageType != 'E' && storageType != 'F' && storageType != 'C' && storageType != 'R') {
-                        throw new IllegalArgumentException("Invalid storage type. Please enter 'E', 'F', 'C', or 'R'.");
-                    }
-                } catch (IllegalArgumentException e) {
-                    System.out.println(e.getMessage());
-                }
-            } while (storageType != 'E' && storageType != 'F' && storageType != 'C' && storageType != 'R');
-
-            System.out.println("Please enter the maximum number of cartons per pallet: ");
-            int MAX_NUMBER_CARTONS_PER_PALLET = keyboard.nextInt();
-            System.out.println("Please enter the maximum number of goods per carton: ");
-            int MAX_NUMBER_GOODS_PER_CARTON = keyboard.nextInt();
-            System.out.println("Please enter the current number of goods to be added to pallet: ");
-            int currentGoodsNumber = keyboard.nextInt();
-            System.out.println("Please enter the maximum number of individual goods items that can fit on shelf: ");
-            int maxNumberOfItemsShelf = keyboard.nextInt();
-            System.out.println("How many items would you initially like to put on the supermarket shelf: ");
-            int currentNumberOfItemsOnShelf = keyboard.nextInt();
-            System.out.println("Note: The supermarket shelf bay number will be the same as the warehouse bay number to avoid confusion.");
-            int warehouseBayNumber;
-
-            if (storageType == 'E') {
-                System.out.println("What warehouse bay number in the flammable section would you like to add the new goods to: ");
-                warehouseBayNumber = keyboard.nextInt();
-                if (flammablegoods.size() <= flammableinventory.getMaxNumberPalletBays()) {
-                    flammablegoods.add(new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber));
-                } else {
-                    System.out.println("Not enough space in this warehouse for new pallet");
-                }
-            } else if (storageType == 'F') {
-                System.out.println("What warehouse bay number in the frozen section would you like to add the new goods to: ");
-                warehouseBayNumber = keyboard.nextInt();
-                if (frozengoods.size() <= frozeninventory.getMaxNumberPalletBays()) {
-                    frozengoods.add(new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber));
-                } else {
-                    System.out.println("Not enough space in this warehouse for new pallet");
-                }
-            } else if (storageType == 'C') {
-                System.out.println("What warehouse bay number in the refrigeration section would you like to add the new goods to: ");
-                warehouseBayNumber = keyboard.nextInt();
-                if (refrigeratedgoods.size() <= refrigeratedinventory.getMaxNumberPalletBays()) {
-                    refrigeratedgoods.add(new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber));
-                } else {
-                    System.out.println("Not enough space in this warehouse for new pallet");
-                }
-            } else if (storageType == 'R') {
-                System.out.println("What warehouse bay number in the room temperature section would you like to add the new goods to: ");
-                warehouseBayNumber = keyboard.nextInt();
-                if (roomtemperaturegoods.size() <= roomtemperatureinventory.getMaxNumberPalletBays()) {
-                    roomtemperaturegoods.add(new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber));
-                } else {
-                    System.out.println("Not enough space in this warehouse for new pallet.");
-                }
-            } else {
-                System.out.println("Invalid storage type. Please enter 'E', 'F', 'C', or 'R'.");
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter a valid number.");
-            keyboard.nextLine();
-        }
-    }
+//    public void addPalletGoods() {
+//        Scanner keyboard = new Scanner(System.in);
+//
+//        try {
+//            System.out.println("Please enter a new stock code: ");
+//            int stockCode = keyboard.nextInt();
+//            keyboard.nextLine();
+//            System.out.println("Please enter a brief product description: ");
+//            String description = keyboard.nextLine();
+//            char storageType = ' ';
+//
+//            do {
+//                System.out.println("Please enter a storage type from the list below: ");
+//                System.out.println("'E': Flammable");
+//                System.out.println("'F': Frozen");
+//                System.out.println("'C': Refrigerated");
+//                System.out.println("'R': Room temperature");
+//
+//                String input = keyboard.next();
+//                try {
+//                    if (input.length() == 1) {
+//                        storageType = input.charAt(0);
+//                        storageType = Character.toUpperCase(storageType);
+//                    } else {
+//                        throw new IllegalArgumentException("Invalid input. Please enter a single character.");
+//                    }
+//
+//                    if (storageType != 'E' && storageType != 'F' && storageType != 'C' && storageType != 'R') {
+//                        throw new IllegalArgumentException("Invalid storage type. Please enter 'E', 'F', 'C', or 'R'.");
+//                    }
+//                } catch (IllegalArgumentException e) {
+//                    System.out.println(e.getMessage());
+//                }
+//            } while (storageType != 'E' && storageType != 'F' && storageType != 'C' && storageType != 'R');
+//
+//            System.out.println("Please enter the maximum number of cartons per pallet: ");
+//            int MAX_NUMBER_CARTONS_PER_PALLET = keyboard.nextInt();
+//            System.out.println("Please enter the maximum number of goods per carton: ");
+//            int MAX_NUMBER_GOODS_PER_CARTON = keyboard.nextInt();
+//            System.out.println("Please enter the current number of goods to be added to pallet: ");
+//            int currentGoodsNumber = keyboard.nextInt();
+//            System.out.println("Please enter the maximum number of individual goods items that can fit on shelf: ");
+//            int maxNumberOfItemsShelf = keyboard.nextInt();
+//            System.out.println("How many items would you initially like to put on the supermarket shelf: ");
+//            int currentNumberOfItemsOnShelf = keyboard.nextInt();
+//            System.out.println("Note: The supermarket shelf bay number will be the same as the warehouse bay number to avoid confusion.");
+//            int warehouseBayNumber;
+//
+//            if (storageType == 'E') {
+//                System.out.println("What warehouse bay number in the flammable section would you like to add the new goods to: ");
+//                warehouseBayNumber = keyboard.nextInt();
+//                if (flammablegoods.size() <= flammableinventory.getMaxNumberPalletBays()) {
+//                    flammablegoods.add(new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber, ));
+//                } else {
+//                    System.out.println("Not enough space in this warehouse for new pallet");
+//                }
+//            } else if (storageType == 'F') {
+//                System.out.println("What warehouse bay number in the frozen section would you like to add the new goods to: ");
+//                warehouseBayNumber = keyboard.nextInt();
+//                if (frozengoods.size() <= frozeninventory.getMaxNumberPalletBays()) {
+//                    frozengoods.add(new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber));
+//                } else {
+//                    System.out.println("Not enough space in this warehouse for new pallet");
+//                }
+//            } else if (storageType == 'C') {
+//                System.out.println("What warehouse bay number in the refrigeration section would you like to add the new goods to: ");
+//                warehouseBayNumber = keyboard.nextInt();
+//                if (refrigeratedgoods.size() <= refrigeratedinventory.getMaxNumberPalletBays()) {
+//                    refrigeratedgoods.add(new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber));
+//                } else {
+//                    System.out.println("Not enough space in this warehouse for new pallet");
+//                }
+//            } else if (storageType == 'R') {
+//                System.out.println("What warehouse bay number in the room temperature section would you like to add the new goods to: ");
+//                warehouseBayNumber = keyboard.nextInt();
+//                if (roomtemperaturegoods.size() <= roomtemperatureinventory.getMaxNumberPalletBays()) {
+//                    roomtemperaturegoods.add(new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber));
+//                } else {
+//                    System.out.println("Not enough space in this warehouse for new pallet.");
+//                }
+//            } else {
+//                System.out.println("Invalid storage type. Please enter 'E', 'F', 'C', or 'R'.");
+//            }
+//        } catch (InputMismatchException e) {
+//            System.out.println("Invalid input. Please enter a valid number.");
+//            keyboard.nextLine();
+//        }
+//    }
 
     /**
      * Adds bin pallet type goods to the inventory. This method prompts the user
@@ -333,88 +349,88 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
      * object based on the input and adds it to the appropriate storage type
      * list.
      */
-    public void addBinGoods() {
-        Scanner keyboard = new Scanner(System.in);
-
-        try {
-            System.out.println("Please enter a new stock code: ");
-            int stockCode = keyboard.nextInt();
-            keyboard.nextLine();
-            System.out.println("Please enter a brief product description: ");
-            String description = keyboard.nextLine();
-            char storageType = ' ';
-
-            do {
-                System.out.println("Please enter a storage type from the list below: ");
-                System.out.println("'F': Frozen");
-                System.out.println("'C': Refrigerated");
-                System.out.println("'R': Room temperature");
-
-                String input = keyboard.next();
-                try {
-                    if (input.length() == 1) {
-                        storageType = input.charAt(0);
-                        storageType = Character.toUpperCase(storageType);
-                    } else {
-                        throw new IllegalArgumentException("Invalid input. Please enter a single character.");
-                    }
-
-                    if (storageType != 'F' && storageType != 'C' && storageType != 'R') {
-                        throw new IllegalArgumentException("Invalid storage type. Please enter 'F', 'C', or 'R'.");
-                    }
-                } catch (IllegalArgumentException e) {
-                    System.out.println(e.getMessage());
-                }
-            } while (storageType != 'F' && storageType != 'C' && storageType != 'R');
-
-            System.out.println("Please enter the maximum number of kg per bin pallet: ");
-            int maxKgPerBin = keyboard.nextInt();
-            System.out.println("Please enter the current new kg in the bin: ");
-            int currentKgPerBin = keyboard.nextInt();
-            System.out.println("Please enter the max kg that can fit on the supermarket shelf: ");
-            int maxKgOnShelf = keyboard.nextInt();
-            System.out.println("Please enter the initial kg you would like to add to shelf: ");
-            int currentKgOnShelf = keyboard.nextInt();
-
-            if (currentKgOnShelf > maxKgOnShelf) {
-                System.out.println("That is too many kg for the shelf.");
-                return;
-            }
-
-            int warehouseBayNumber;
-
-            if (storageType == 'F') {
-                System.out.println("What warehouse bay number in the frozen section would you like to add the new goods to: ");
-                warehouseBayNumber = keyboard.nextInt();
-                if (frozengoods.size() < frozeninventory.getMaxNumberPalletBays()) {
-                    frozengoods.add(new BinGoodsOnPallet(currentKgPerBin, maxKgPerBin, maxKgOnShelf, currentKgOnShelf, stockCode, description, storageType, warehouseBayNumber));
-                } else {
-                    System.out.println("Not enough space in this warehouse for a new bin pallet.");
-                }
-            } else if (storageType == 'C') {
-                System.out.println("What warehouse bay number in the refrigeration section would you like to add the new goods to: ");
-                warehouseBayNumber = keyboard.nextInt();
-                if (refrigeratedgoods.size() < refrigeratedinventory.getMaxNumberPalletBays()) {
-                    refrigeratedgoods.add(new BinGoodsOnPallet(currentKgPerBin, maxKgPerBin, maxKgOnShelf, currentKgOnShelf, stockCode, description, storageType, warehouseBayNumber));
-                } else {
-                    System.out.println("Not enough space in this warehouse for a new bin pallet.");
-                }
-            } else if (storageType == 'R') {
-                System.out.println("What warehouse bay number in the room temperature section would you like to add the new goods to: ");
-                warehouseBayNumber = keyboard.nextInt();
-                if (roomtemperaturegoods.size() < roomtemperatureinventory.getMaxNumberPalletBays()) {
-                    roomtemperaturegoods.add(new BinGoodsOnPallet(currentKgPerBin, maxKgPerBin, maxKgOnShelf, currentKgOnShelf, stockCode, description, storageType, warehouseBayNumber));
-                } else {
-                    System.out.println("Not enough space in this warehouse for a new bin pallet.");
-                }
-            } else {
-                System.out.println("Invalid storage type. Please enter 'F', 'C', or 'R'.");
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Invalid input. Please enter a valid number.");
-            keyboard.nextLine();
-        }
-    }
+//    public void addBinGoods() {
+//        Scanner keyboard = new Scanner(System.in);
+//
+//        try {
+//            System.out.println("Please enter a new stock code: ");
+//            int stockCode = keyboard.nextInt();
+//            keyboard.nextLine();
+//            System.out.println("Please enter a brief product description: ");
+//            String description = keyboard.nextLine();
+//            char storageType = ' ';
+//
+//            do {
+//                System.out.println("Please enter a storage type from the list below: ");
+//                System.out.println("'F': Frozen");
+//                System.out.println("'C': Refrigerated");
+//                System.out.println("'R': Room temperature");
+//
+//                String input = keyboard.next();
+//                try {
+//                    if (input.length() == 1) {
+//                        storageType = input.charAt(0);
+//                        storageType = Character.toUpperCase(storageType);
+//                    } else {
+//                        throw new IllegalArgumentException("Invalid input. Please enter a single character.");
+//                    }
+//
+//                    if (storageType != 'F' && storageType != 'C' && storageType != 'R') {
+//                        throw new IllegalArgumentException("Invalid storage type. Please enter 'F', 'C', or 'R'.");
+//                    }
+//                } catch (IllegalArgumentException e) {
+//                    System.out.println(e.getMessage());
+//                }
+//            } while (storageType != 'F' && storageType != 'C' && storageType != 'R');
+//
+//            System.out.println("Please enter the maximum number of kg per bin pallet: ");
+//            int maxKgPerBin = keyboard.nextInt();
+//            System.out.println("Please enter the current new kg in the bin: ");
+//            int currentKgPerBin = keyboard.nextInt();
+//            System.out.println("Please enter the max kg that can fit on the supermarket shelf: ");
+//            int maxKgOnShelf = keyboard.nextInt();
+//            System.out.println("Please enter the initial kg you would like to add to shelf: ");
+//            int currentKgOnShelf = keyboard.nextInt();
+//
+//            if (currentKgOnShelf > maxKgOnShelf) {
+//                System.out.println("That is too many kg for the shelf.");
+//                return;
+//            }
+//
+//            int warehouseBayNumber;
+//
+//            if (storageType == 'F') {
+//                System.out.println("What warehouse bay number in the frozen section would you like to add the new goods to: ");
+//                warehouseBayNumber = keyboard.nextInt();
+//                if (frozengoods.size() < frozeninventory.getMaxNumberPalletBays()) {
+//                    frozengoods.add(new BinGoodsOnPallet(currentKgPerBin, maxKgPerBin, maxKgOnShelf, currentKgOnShelf, stockCode, description, storageType, warehouseBayNumber));
+//                } else {
+//                    System.out.println("Not enough space in this warehouse for a new bin pallet.");
+//                }
+//            } else if (storageType == 'C') {
+//                System.out.println("What warehouse bay number in the refrigeration section would you like to add the new goods to: ");
+//                warehouseBayNumber = keyboard.nextInt();
+//                if (refrigeratedgoods.size() < refrigeratedinventory.getMaxNumberPalletBays()) {
+//                    refrigeratedgoods.add(new BinGoodsOnPallet(currentKgPerBin, maxKgPerBin, maxKgOnShelf, currentKgOnShelf, stockCode, description, storageType, warehouseBayNumber));
+//                } else {
+//                    System.out.println("Not enough space in this warehouse for a new bin pallet.");
+//                }
+//            } else if (storageType == 'R') {
+//                System.out.println("What warehouse bay number in the room temperature section would you like to add the new goods to: ");
+//                warehouseBayNumber = keyboard.nextInt();
+//                if (roomtemperaturegoods.size() < roomtemperatureinventory.getMaxNumberPalletBays()) {
+//                    roomtemperaturegoods.add(new BinGoodsOnPallet(currentKgPerBin, maxKgPerBin, maxKgOnShelf, currentKgOnShelf, stockCode, description, storageType, warehouseBayNumber));
+//                } else {
+//                    System.out.println("Not enough space in this warehouse for a new bin pallet.");
+//                }
+//            } else {
+//                System.out.println("Invalid storage type. Please enter 'F', 'C', or 'R'.");
+//            }
+//        } catch (InputMismatchException e) {
+//            System.out.println("Invalid input. Please enter a valid number.");
+//            keyboard.nextLine();
+//        }
+//    }
 
     /**
      * Moves a specified amount of kg from a bin pallet type good in the
@@ -767,6 +783,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
                     String storageTypeString = row.getCell(2).getStringCellValue();
                     char storageType = storageTypeString.isEmpty() ? ' ' : storageTypeString.charAt(0);
                     int warehouseBayNumber = (int) getNumericCellValue(row.getCell(3));
+                    int superMarketBayNumber = (int) getNumericCellValue(row.getCell(4));
 
                     Cell cellBin = row.getCell(5);
                     Cell cellCarton = row.getCell(9);
@@ -776,7 +793,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
                         double currentKgOnShelf = getNumericCellValue(row.getCell(6));
                         double maxKgPerBin = getNumericCellValue(row.getCell(7));
                         double maxKgOnShelf = getNumericCellValue(row.getCell(8));
-                        BinGoodsOnPallet goods = new BinGoodsOnPallet(currentKgPerBin, maxKgPerBin, maxKgOnShelf, currentKgOnShelf, stockCode, description, storageType, warehouseBayNumber);
+                        BinGoodsOnPallet goods = new BinGoodsOnPallet(currentKgPerBin, maxKgPerBin, maxKgOnShelf, currentKgOnShelf, stockCode, description, storageType, warehouseBayNumber, superMarketBayNumber);
                         readgoods.add(goods);
                     }
 
@@ -786,7 +803,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
                         int currentGoodsNumber = (int) getNumericCellValue(row.getCell(11));
                         int maxNumberOfItemsShelf = (int) getNumericCellValue(row.getCell(13));
                         int currentNumberOfItemsOnShelf = (int) getNumericCellValue(row.getCell(14));
-                        CartonizedGoods goods = new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber);
+                        CartonizedGoods goods = new CartonizedGoods(MAX_NUMBER_CARTONS_PER_PALLET, MAX_NUMBER_GOODS_PER_CARTON, currentGoodsNumber, maxNumberOfItemsShelf, currentNumberOfItemsOnShelf, stockCode, description, storageType, warehouseBayNumber, superMarketBayNumber);
                         readgoods.add(goods);
                     }
                 } catch (Exception e) {
@@ -987,5 +1004,10 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
         System.err.println("Error syncing objects to DB: " + e.getMessage());
     }
 }
+
+    @Override
+    public void addGoods() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 
 }

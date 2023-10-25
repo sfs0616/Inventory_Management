@@ -119,7 +119,7 @@ public class InventoryDatabaseManager {
 }
 
     //Establish connection
-    public void establishConnection() {
+     public void establishConnection() {
     try {
         // Establish a connection to Database
         this.conn = DriverManager.getConnection(URL, USER_NAME, PASSWORD);

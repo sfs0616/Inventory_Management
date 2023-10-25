@@ -22,12 +22,12 @@ public abstract class Goods implements Serializable, Comparable<Goods> {
     /**
      * Constructor to initialize Goods object with provided information.
      */
-    public Goods(int stockCode, String description, char storageType, int warehouseBayNumber) {
+    public Goods(int stockCode, String description, char storageType, int warehouseBayNumber, int supermarketBayNumber) {
         this.stockCode = stockCode;
         this.description = description;
         this.storageType = storageType;
         this.warehouseBayNumber = warehouseBayNumber;
-        this.supermarketBayNumber = warehouseBayNumber;
+        this.supermarketBayNumber = supermarketBayNumber;
     }
 
     // Getter methods for instance variables

@@ -19,13 +19,13 @@ public class CartonizedGoods extends Goods implements Serializable{
     private int maxNumberOfItemsShelf; 
     private int currentNumberOfItemsOnShelf;
 
-    public CartonizedGoods(int MAX_NUMBER_CARTONS_PER_PALLET, int MAX_NUMBER_GOODS_PER_CARTON, int currentGoodsNumber, int maxNumberOfItemsShelf, int currentNumberOfItemsOnShelf, int stockCode, String description, char storageType, int warehouseBayNumber) {
-        super(stockCode, description, storageType, warehouseBayNumber);
+    public CartonizedGoods(int MAX_NUMBER_CARTONS_PER_PALLET, int MAX_NUMBER_GOODS_PER_CARTON, int currentGoodsNumber, int maxNumberOfItemsShelf, int currentNumberOfItemsOnShelf, int stockCode, String description, char storageType, int warehouseBayNumber, int supermarketBayNumber) {
+        super(stockCode, description, storageType, warehouseBayNumber, supermarketBayNumber);
         this.MAX_NUMBER_CARTONS_PER_PALLET = MAX_NUMBER_CARTONS_PER_PALLET;
         this.MAX_NUMBER_GOODS_PER_CARTON = MAX_NUMBER_GOODS_PER_CARTON;
         this.currentGoodsNumber = currentGoodsNumber;
         this.currentCartonsNumber = ((currentGoodsNumber)/(MAX_NUMBER_GOODS_PER_CARTON));
-        
+       
     }
 
    

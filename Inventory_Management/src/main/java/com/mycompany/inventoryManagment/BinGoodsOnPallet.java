@@ -17,8 +17,8 @@ public class BinGoodsOnPallet extends Goods implements Serializable{
      private double maxKgOnShelf;
      private double currentKgOnShelf;
 
-    public BinGoodsOnPallet(double currentKgPerBin, double maxKgPerBin, double maxKgOnShelf, double currentKgOnShelf, int stockCode, String description, char storageType, int warehouseBayNumber) {
-        super(stockCode, description, storageType, warehouseBayNumber);
+    public BinGoodsOnPallet(double currentKgPerBin, double maxKgPerBin, double maxKgOnShelf, double currentKgOnShelf, int stockCode, String description, char storageType, int warehouseBayNumber, int supermarketBayNumber) {
+        super(stockCode, description, storageType, warehouseBayNumber, supermarketBayNumber);
         this.currentKgPerBin = currentKgPerBin;
         this.maxKgPerBin = maxKgPerBin;
         this.maxKgOnShelf = maxKgOnShelf;
