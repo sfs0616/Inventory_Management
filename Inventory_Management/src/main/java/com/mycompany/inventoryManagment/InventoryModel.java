@@ -113,7 +113,7 @@ public class InventoryModel extends Observable {
         //STOCK_CODE INT, PRODUCT_DESCRIPTION VARCHAR(100), STORAGE_TYPE
 //VARCHAR(1), WAREHOUSE_BAY_NUM INT, SUPERMARKET_BAY_NUM INT, CURRENT_GOODS_TOTAL INT, CURRENT_CARTONS_TOTAL INT, CURRENT_TOTAL_ITEMS_SHELF INT, 
         
-         int stockCode = Integer.parseInt(goods[0]);
+       int stockCode = Integer.parseInt(goods[0]);
        String productDescript = goods[1];
        char storageType = goods[2].charAt(0);
        int wareHouseNum = Integer.parseInt(goods[3]);
@@ -154,8 +154,7 @@ public class InventoryModel extends Observable {
         System.out.println("Saved user data");
         warehouseSuperMarket.goodsSorter();
         warehouseSuperMarket.saveToFile(userToWrite);
-        warehouseSuperMarket.saveToFileAndUpdateExcel(userToWrite);
-        warehouseSuperMarket.saveFilesToText(userToWrite);
+        
         warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.frozengoods, "FROZEN_GOODS");
         warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.flammablegoods, "FLAMMABLE_GOODS ");
         warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.roomtemperaturegoods, "ROOM_TEMP_GOODS ");

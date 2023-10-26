@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -25,11 +26,11 @@ import javax.swing.table.DefaultTableModel;
  */
 public class InventoryPanel extends JPanel implements Observer {
 
-    InventoryModel model;
     private ArrayList<Goods> frozengoods = new ArrayList<>();
     private ArrayList<Goods> refrigeratedgoods = new ArrayList<>();
     private ArrayList<Goods> flammablegoods = new ArrayList<>();
     private ArrayList<Goods> roomtemperaturegoods = new ArrayList<>();
+    private InventoryModel model;
     Dimension preferredSize = new Dimension(300, 25);
     private String[] columnNames = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE_TYPE", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT GOODS TOTAL", "CURRENT CARTONS TOTAL", "CURRENT TOTAL ITEMS SHELF", "CURRENT KG BIN", "CURRENT KG SHELF INT"};
     private DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
@@ -60,11 +61,7 @@ public class InventoryPanel extends JPanel implements Observer {
     public ArrayList<Goods> getRoomtemperaturegoods() {
         return roomtemperaturegoods;
     }
-    
-    
-    
-    
-    
+
     public void setFrozengoods(ArrayList<Goods> frozengoods) {
         this.frozengoods = frozengoods;
     }
@@ -81,8 +78,9 @@ public class InventoryPanel extends JPanel implements Observer {
         this.roomtemperaturegoods = roomtemperaturegoods;
     }
 
-   public InventoryPanel(InventoryModel model) {
+    public InventoryPanel(InventoryModel model) {
         this.model = model;
+        model.addObserver(this);
         addBinGoods = new JButton("Add Bin Goods");
         addBinGoods.setPreferredSize(preferredSize);
         frozenButton = new JButton("Frozen Goods");
@@ -101,46 +99,32 @@ public class InventoryPanel extends JPanel implements Observer {
         moveGoods.setPreferredSize(preferredSize);
         changeSupermarketShelves = new JButton("Change Supermarket Shelves");
         changeSupermarketShelves.setPreferredSize(preferredSize);
+
         table = new JTable(tableModel);
         scrollPane = new JScrollPane(table);
         add(scrollPane);
         setActionCommands();
-        
+
         setLayout(new GridBagLayout());
+        // Set up the GridBagConstraints
         GridBagConstraints gbc = new GridBagConstraints();
-
-        // Add and format the buttons
         gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new Insets(5, 5, 5, 5);  // Margins for the components
-        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridy = GridBagConstraints.RELATIVE;  // This means next available row
+        gbc.insets = new Insets(5, 5, 5, 5);      // Margins for the components
+        gbc.anchor = GridBagConstraints.WEST;     // Left-aligned
+        gbc.weighty = 1.0;                        // Distribute extra vertical space evenly among buttons
+        gbc.fill = GridBagConstraints.NONE;   // Make each button stretch vertically
+
+// Add buttons to the panel
         add(frozenButton, gbc);
-
-        gbc.gridy++;
         add(flammableButton, gbc);
-
-        gbc.gridy++;
         add(refrigeratedButton, gbc);
-
-        gbc.gridy++;
         add(roomTemperatureButton, gbc);
-
-        gbc.gridy++;
-        add(addCartonizedGoods, gbc);
-        
-        gbc.gridy++;
-        add(addBinGoods, gbc);
-
-        gbc.gridy++;
-        add(changePallets, gbc);
-        
-        gbc.gridy++;
-        add(changeSupermarketShelves, gbc);
-
-        gbc.gridy++;
         add(moveGoods, gbc);
-
-        
+        add(addCartonizedGoods, gbc);
+        add(addBinGoods, gbc);
+        add(changePallets, gbc);
+        add(changeSupermarketShelves, gbc);
 
         // Add and format the scroll pane
         gbc.gridx = 1;
@@ -160,13 +144,13 @@ public class InventoryPanel extends JPanel implements Observer {
         addCartonizedGoods.setActionCommand("Add Cartonized Goods");
         changePallets.setActionCommand("ChangePallets");
         changeSupermarketShelves.setActionCommand("ChangeSupermarketShelves");
-        moveGoods.setActionCommand("MoveGoods");
+        moveGoods.setActionCommand("GetMoveGoodsPanel");
         addBinGoods.setActionCommand("AddBinGoods");
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        
+
         this.setFrozengoods(model.warehouseSuperMarket.getFrozengoods());
         this.setFlammablegoods(model.warehouseSuperMarket.getFlammablegoods());
         this.setRefrigeratedgoods(model.warehouseSuperMarket.getRefrigeratedgoods());
@@ -174,28 +158,30 @@ public class InventoryPanel extends JPanel implements Observer {
     }
 
     public void updateTableData(ArrayList<Goods> goods) {
-        DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-        tableModel.setRowCount(0);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
+                tableModel.setRowCount(0);
 
-        for (Goods item : goods) {
-            Object[] rowData = new Object[10];
-            rowData[0] = item.getStockCode();
-            rowData[1] = item.getDescription();
-            rowData[2] = item.getStorageType();
-            rowData[3] = item.getWarehouseBayNumber();
-            rowData[4] = item.getSupermarketBayNumber();
-            if (item instanceof CartonizedGoods) {
-
-                rowData[5] = ((CartonizedGoods) item).getCurrentGoodsNumber();
-                rowData[6] = ((CartonizedGoods) item).getCurrentCartonsNumber();
-                rowData[7] = ((CartonizedGoods) item).getCurrentNumberOfItemsOnShelf();
-
-            }else if(item instanceof BinGoodsOnPallet){
-                rowData[8] = ((BinGoodsOnPallet) item).getCurrentKgPerBin();
-                rowData[9] = ((BinGoodsOnPallet) item).getCurrentKgOnShelf();
+                for (Goods item : goods) {
+                    Object[] rowData = new Object[10];
+                    rowData[0] = item.getStockCode();
+                    rowData[1] = item.getDescription();
+                    rowData[2] = item.getStorageType();
+                    rowData[3] = item.getWarehouseBayNumber();
+                    rowData[4] = item.getSupermarketBayNumber();
+                    if (item instanceof CartonizedGoods) {
+                        rowData[5] = ((CartonizedGoods) item).getCurrentGoodsNumber();
+                        rowData[6] = ((CartonizedGoods) item).getCurrentCartonsNumber();
+                        rowData[7] = ((CartonizedGoods) item).getCurrentNumberOfItemsOnShelf();
+                    } else if (item instanceof BinGoodsOnPallet) {
+                        rowData[8] = ((BinGoodsOnPallet) item).getCurrentKgPerBin();
+                        rowData[9] = ((BinGoodsOnPallet) item).getCurrentKgOnShelf();
+                    }
+                    tableModel.addRow(rowData);
+                }
             }
-            tableModel.addRow(rowData);
-        }
+        });
     }
 
     public void addFrozenButtonListener(ActionListener listener) {
@@ -214,8 +200,6 @@ public class InventoryPanel extends JPanel implements Observer {
         roomTemperatureButton.addActionListener(listener);
     }
 
-    
-
     public void addChangePalletsButtonListener(ActionListener listener) {
         changePallets.addActionListener(listener);
     }
@@ -227,12 +211,12 @@ public class InventoryPanel extends JPanel implements Observer {
     public void addAddCartonizedGoodsButtonListener(ActionListener listener) {
         addCartonizedGoods.addActionListener(listener);
     }
-    
-    public void addAddBinGoodsButtonListener(ActionListener listener){
+
+    public void addAddBinGoodsButtonListener(ActionListener listener) {
         addBinGoods.addActionListener(listener);
     }
-    
-    public void addMoveGoodsButtonListener(ActionListener listener){
+
+    public void addMoveGoodsButtonListener(ActionListener listener) {
         moveGoods.addActionListener(listener);
     }
 

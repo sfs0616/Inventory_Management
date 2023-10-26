@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -25,8 +26,8 @@ public class AddBinGoodsPanel extends JPanel {
 
     private JTextField[] textFields;
     private int cols = 7;
-    private String[] columnLabels = {"STOCK CODE", "PRODUCT DESCRIPTION", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "STORAGE TYPE", "CURRENT KG BIN", "CURRENT KG SHELF"};
-    private InventoryModel model;
+    private String[] columnLabels = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE TYPE", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT KG BIN", "CURRENT KG SHELF"};
+    
     private String[] data;
     private JButton submitButton;
     private JButton goBack;
@@ -35,8 +36,9 @@ public class AddBinGoodsPanel extends JPanel {
         return data;
     }
 
-    public AddBinGoodsPanel(InventoryModel model) {
-        this.model = model;
+    public AddBinGoodsPanel() {
+        
+        data = new String[cols];
         setLayout(new BorderLayout());
 
         JPanel labelPanel = new JPanel(new GridLayout(1, cols));
@@ -85,11 +87,14 @@ public class AddBinGoodsPanel extends JPanel {
         }
     }
 
-    public void addSubmitButtonListener(ActionListener listener) {
-        submitButton.addActionListener(listener);
-    }
+    public void addSubmitBinGoodsButtonListener(ActionListener listener) {
+    Exception e = new Exception("addSubmitBinGoodsButtonListener called");
+    e.printStackTrace();
+    System.out.println("ActionListeners added");
+    submitButton.addActionListener(listener);
+}
 
-    public void addGoBackButtonActionListener(ActionListener listener) {
+    public void addGoBackBinButtonActionListener(ActionListener listener) {
         goBack.addActionListener(listener);
     }
 
@@ -97,5 +102,18 @@ public class AddBinGoodsPanel extends JPanel {
         submitButton.setActionCommand("SubmitBinGoods");
         goBack.setActionCommand("GoBack");
     }
+    
+    public void invalidStorageMessage() {
+        JOptionPane.showMessageDialog(this, "Error, Invalid storage type. Please enter from one of the following character types: \n 'E':Flammable, 'C':Refrigerated, 'F': Frozen, 'R': Room temperature");
+    }
 
+    
+    public void goodsAddedMessage() {
+        JOptionPane.showMessageDialog(this, "Goods Added to inventory. Check inventory page.");
+    }
+    
+    public void invalidFields() {
+        JOptionPane.showMessageDialog(this, "Invalid fields. Please make sure all fields have values.");
+        System.out.println("Invalid storage message displayed");
+    }
 }

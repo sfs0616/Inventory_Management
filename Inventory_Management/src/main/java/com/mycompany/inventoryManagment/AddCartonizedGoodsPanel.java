@@ -16,6 +16,7 @@ import java.util.Observer;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -30,7 +31,7 @@ public class AddCartonizedGoodsPanel extends JPanel{
     
     private int cols = 7;
     private String[] columnLabels = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE TYPE", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT GOODS TOTAL", "CURRENT TOTAL ITEMS SHELF"};
-    private InventoryModel model;
+    
     private String[] data;
     private JButton submitButton;
     private JButton goBack;
@@ -42,8 +43,9 @@ public class AddCartonizedGoodsPanel extends JPanel{
     
     
 
-    public AddCartonizedGoodsPanel(InventoryModel model) {
-        this.model = model;
+    public AddCartonizedGoodsPanel() {
+        data = new String[cols];
+        
         setLayout(new BorderLayout());
 
         JPanel labelPanel = new JPanel(new GridLayout(1, cols));
@@ -92,7 +94,7 @@ public class AddCartonizedGoodsPanel extends JPanel{
     
 
     // Method to handle the data submission
-    public void submitData() {
+    public void submitCartonData() {
         for (int j = 0; j < cols; j++) {
             data[j] = textFields[j].getText();
             System.out.println("Data at column " + j + " = " + data);
@@ -111,6 +113,18 @@ public class AddCartonizedGoodsPanel extends JPanel{
     public void setActionCommands() {
         submitButton.setActionCommand("SubmitCartonGoods");
         goBack.setActionCommand("GoBack");
+    }
+    public void invalidStorageCartonMessage() {
+        JOptionPane.showMessageDialog(this, "Error, Invalid storage type. Please enter from one of the following character types: \n 'E':Flammable, 'C':Refrigerated, 'F': Frozen, 'R': Room temperature");
+    }
+
+    
+    public void cartonGoodsAddedMessage() {
+        JOptionPane.showMessageDialog(this, "Goods Added to inventory. Check inventory page.");
+    }
+    
+    public void invalidFields() {
+        JOptionPane.showMessageDialog(this, "Invalid fields. Please make sure all fields have values.");
     }
 
     

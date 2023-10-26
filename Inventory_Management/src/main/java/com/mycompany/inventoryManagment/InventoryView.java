@@ -6,11 +6,9 @@ package com.mycompany.inventoryManagment;
 
 import java.awt.CardLayout;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.util.Observable;
-import java.util.Observer;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -18,19 +16,19 @@ import javax.swing.JPanel;
  */
 public class InventoryView extends JFrame{
     
-    InventoryModel model;
+    
     private JPanel cardPanel;
     private CardLayout cardLayout;
     private UserPanel userPanel;
     private InventoryPanel inventoryPanel;
     private AddCartonizedGoodsPanel addCartonGoodsPanel;
     private AddBinGoodsPanel addBinGoodsPanel;
+    private MoveGoodsPanel moveGoodsPanel;
+    private InventoryModel model;
 
    
 
-    public InventoryModel getModel() {
-        return model;
-    }
+   
 
     public UserPanel getUserPanel() {
         return userPanel;
@@ -61,7 +59,7 @@ public class InventoryView extends JFrame{
     
     
     public InventoryView(InventoryModel model){
-        this.model = model;
+         this.model = model;
          setTitle("Inventory Management System");
         setExtendedState(JFrame.MAXIMIZED_BOTH);  // Maximize the frame
         //setUndecorated(true);  // Remove the window decorations (optional)
@@ -71,17 +69,22 @@ public class InventoryView extends JFrame{
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         
+        
+        
         userPanel = new UserPanel(model);
         cardPanel.add(userPanel, "Log in:");
         
         inventoryPanel = new InventoryPanel(model);
         cardPanel.add(inventoryPanel, "InventoryPanel");
         
-        addCartonGoodsPanel = new AddCartonizedGoodsPanel(model);
+        addCartonGoodsPanel = new AddCartonizedGoodsPanel();
         cardPanel.add(addCartonGoodsPanel, "AddCartonizedGoods");
         
-        addBinGoodsPanel = new AddBinGoodsPanel(model);
+        addBinGoodsPanel = new AddBinGoodsPanel();
         cardPanel.add(addBinGoodsPanel, "AddBinGoods");
+        
+        moveGoodsPanel = new MoveGoodsPanel(model);
+        cardPanel.add(moveGoodsPanel, "Move Goods Panel");
         
         cardLayout.show(cardPanel, "UserPanel");
         
@@ -91,8 +94,14 @@ public class InventoryView extends JFrame{
         
     }
     
+    
+    
     public void addController(ActionListener controller){
+        SwingUtilities.invokeLater(new Runnable() {
+    @Override
+    public void run() {
         userPanel.addloginButtonListener(controller);
+       
         userPanel.addtextFieldActionListener(controller);
         inventoryPanel.addFrozenButtonListener(controller);
         inventoryPanel.addFlammableButtonListener(controller);
@@ -105,11 +114,17 @@ public class InventoryView extends JFrame{
         addCartonGoodsPanel.addSubmitButtonListener(controller);
         addCartonGoodsPanel.addGoBackButtonActionListener(controller);
         inventoryPanel.addAddBinGoodsButtonListener(controller);
-        addBinGoodsPanel.addSubmitButtonListener(controller);
-        addBinGoodsPanel.addGoBackButtonActionListener(controller);
+        addBinGoodsPanel.addSubmitBinGoodsButtonListener(controller);
+        addBinGoodsPanel.addGoBackBinButtonActionListener(controller);
+        moveGoodsPanel.addGoBackButtonActionListener(controller);
+        moveGoodsPanel.addMoveGoodsButtonListener(controller);
+        
+    }
+});
         
     }
 
+    
     
 
     
