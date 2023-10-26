@@ -45,7 +45,7 @@ public class InventoryController implements ActionListener {
     }
 
     private void handleWindowClosing() throws IOException {
-        model.saveGoodsData();
+        model.saveGoodsDataGUI();
 
         System.exit(0); // Optionally, exit the application
     }
@@ -82,7 +82,7 @@ public class InventoryController implements ActionListener {
          switch (command) {
             case "Login":
                 String username = view.getUserPanel().getUsername();
-                model.findUser(username);
+                model.findUserGUI(username);
                 System.out.println("Login Button Clicked findUser is called");
                 view.getCardLayout().show(view.getCardPanel(), "InventoryPanel");
 
@@ -114,7 +114,7 @@ public class InventoryController implements ActionListener {
                 }
                 if (validBinFields == true) {
                     if (typeCheckBin[2].equals("F") || typeCheckBin[2].equals("C") || typeCheckBin[2].equals("R") || typeCheckBin[2].equals("E")) {
-                        model.addBinGoods(view.getAddBinGoodsPanel().getData());
+                        model.addBinGoodsGUI(view.getAddBinGoodsPanel().getData());
                         view.getAddBinGoodsPanel().goodsAddedMessage();
                     } else {
                         view.getAddBinGoodsPanel().invalidStorageMessage();
@@ -137,7 +137,7 @@ public class InventoryController implements ActionListener {
                 }
                 if (validCartonFields == true) {
                     if (typeCheckCarton[2].equals("F") || typeCheckCarton[2].equals("C") || typeCheckCarton[2].equals("R") || typeCheckCarton[2].equals("E")) {
-                        model.addCartonGoods(view.getAddCartonGoodsPanel().getData());
+                        model.addCartonGoodsGUI(view.getAddCartonGoodsPanel().getData());
                         view.getAddCartonGoodsPanel().cartonGoodsAddedMessage();
                     } else {
                         view.getAddCartonGoodsPanel().invalidStorageCartonMessage();
@@ -155,6 +155,31 @@ public class InventoryController implements ActionListener {
                 
             case "GetMoveGoodsPanel":
             view.getCardLayout().show(view.getCardPanel(), "Move Goods Panel");
+            break;
+            
+            case "Move Goods":
+                view.getMoveGoodsPanel().submitData();
+                String[] data = view.getMoveGoodsPanel().getData();
+                model.moveItemFromWarehouseToShelfGUI(data);
+                break;
+                
+            case "Show Delete Goods Panel": 
+                view.getCardLayout().show(view.getCardPanel(), "Delete Goods Panel");
+               
+                break;
+            case "Delete Goods":
+                view.getDeleteGoodsPanel().submitData();
+                String[] deleteData = view.getDeleteGoodsPanel().getData();
+                Boolean goodsDeleted = model.deleteGoodsItemGUI(deleteData);
+                if(goodsDeleted == false)
+                {
+                    view.getDeleteGoodsPanel().errorCheckStockNumber();
+                }
+                if(goodsDeleted == true){
+                    view.getDeleteGoodsPanel().goodsDeletedMessage();
+                }
+                break;
+                
             // Add more cases for other buttons if needed
         }
     });

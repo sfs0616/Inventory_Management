@@ -25,6 +25,7 @@ public class InventoryView extends JFrame{
     private AddBinGoodsPanel addBinGoodsPanel;
     private MoveGoodsPanel moveGoodsPanel;
     private InventoryModel model;
+    private DeleteGoodsPanel deleteGoodsPanel;
 
    
 
@@ -53,6 +54,16 @@ public class InventoryView extends JFrame{
     public AddBinGoodsPanel getAddBinGoodsPanel() {
         return addBinGoodsPanel;
     }
+
+    public MoveGoodsPanel getMoveGoodsPanel() {
+        return moveGoodsPanel;
+    }
+
+    public DeleteGoodsPanel getDeleteGoodsPanel() {
+        return deleteGoodsPanel;
+    }
+    
+    
     
    
     
@@ -82,6 +93,9 @@ public class InventoryView extends JFrame{
         
         addBinGoodsPanel = new AddBinGoodsPanel();
         cardPanel.add(addBinGoodsPanel, "AddBinGoods");
+        
+        deleteGoodsPanel = new DeleteGoodsPanel(model);
+        cardPanel.add(deleteGoodsPanel, "Delete Goods Panel");
         
         moveGoodsPanel = new MoveGoodsPanel(model);
         cardPanel.add(moveGoodsPanel, "Move Goods Panel");
@@ -118,6 +132,9 @@ public class InventoryView extends JFrame{
         addBinGoodsPanel.addGoBackBinButtonActionListener(controller);
         moveGoodsPanel.addGoBackButtonActionListener(controller);
         moveGoodsPanel.addMoveGoodsButtonListener(controller);
+        deleteGoodsPanel.addDeleteGoodsButtonActionListener(controller);
+        deleteGoodsPanel.addGoBackButtonActionListener(controller);
+        inventoryPanel.addDeleteGoodsButtonActionListener(controller);
         
     }
 });
