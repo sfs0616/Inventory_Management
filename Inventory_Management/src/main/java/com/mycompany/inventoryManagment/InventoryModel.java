@@ -33,10 +33,6 @@ public class InventoryModel extends Observable {
     public User getUserToWrite() {
         return userToWrite;
     }
-    
-    
-    
-    
 
     public void setMoveGoodsStockCode(int moveGoodsStockCode) {
         this.moveGoodsStockCode = moveGoodsStockCode;
@@ -46,10 +42,14 @@ public class InventoryModel extends Observable {
         return moveGoodsStockCode;
     }
 
-    public InventoryModel() throws SQLException {
-        this.userManagement = new UserManagement();
-        this.warehouseSuperMarket = new InventoryLists();
-        this.userManagement.loadFromFile("users.dat");
+    public InventoryModel() {
+        try {
+            this.userManagement = new UserManagement();
+            this.warehouseSuperMarket = new InventoryLists();
+            this.userManagement.loadFromFile("users.dat");
+        } catch (SQLException e) {
+            System.out.println("Error initializing the InventoryModel: " + e.getMessage());
+        }
     }
 
     public void findUserGUI(String username) {
@@ -108,198 +108,290 @@ public class InventoryModel extends Observable {
         //STOCK_CODE INT, PRODUCT_DESCRIPTION VARCHAR(100), STORAGE_TYPE
 //VARCHAR(1), WAREHOUSE_BAY_NUM INT, SUPERMARKET_BAY_NUM INT, CURRENT_KG_BIN INT, CURRENT_KG_SHELF INT
 
-        int stockCode = Integer.parseInt(goods[0]);
-        String productDescript = goods[1];
-        char storageType = goods[2].charAt(0);
-        int wareHouseNum = Integer.parseInt(goods[3]);
-        int superMarketNum = Integer.parseInt(goods[4]);
-        double currentKgInBin = Double.parseDouble(goods[5]);
-        double currentKgOnShelf = Double.parseDouble(goods[6]);
-        Goods newGood = new BinGoodsOnPallet(currentKgInBin, 1000, 100, currentKgOnShelf, stockCode, productDescript, storageType, wareHouseNum, superMarketNum);
-        if (storageType == 'E') {
-            warehouseSuperMarket.flammablegoods.add(newGood);
-        } else if (storageType == 'F') {
-            warehouseSuperMarket.frozengoods.add(newGood);
-        } else if (storageType == 'C') {
-            warehouseSuperMarket.refrigeratedgoods.add(newGood);
-        } else if (storageType == 'R') {
-            warehouseSuperMarket.roomtemperaturegoods.add(newGood);
-            this.setChanged();
-            this.notifyObservers();
-        }
+        try {
+            int stockCode = Integer.parseInt(goods[0]);
+            String productDescript = goods[1];
+            char storageType = goods[2].charAt(0);
+            int wareHouseNum = Integer.parseInt(goods[3]);
+            int superMarketNum = Integer.parseInt(goods[4]);
+            double currentKgInBin = Double.parseDouble(goods[5]);
+            double currentKgOnShelf = Double.parseDouble(goods[6]);
+            Goods newGood = new BinGoodsOnPallet(currentKgInBin, 1000, 100, currentKgOnShelf, stockCode, productDescript, storageType, wareHouseNum, superMarketNum);
+            if (storageType == 'E') {
+                warehouseSuperMarket.flammablegoods.add(newGood);
+            } else if (storageType == 'F') {
+                warehouseSuperMarket.frozengoods.add(newGood);
+            } else if (storageType == 'C') {
+                warehouseSuperMarket.refrigeratedgoods.add(newGood);
+            } else if (storageType == 'R') {
+                warehouseSuperMarket.roomtemperaturegoods.add(newGood);
+                this.setChanged();
+                this.notifyObservers();
+            }
 
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing input values: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error adding bin goods: " + e.getMessage());
+        }
     }
 
     public void addCartonGoodsGUI(String[] goods) {
-        //STOCK_CODE INT, PRODUCT_DESCRIPTION VARCHAR(100), STORAGE_TYPE
-//VARCHAR(1), WAREHOUSE_BAY_NUM INT, SUPERMARKET_BAY_NUM INT, CURRENT_GOODS_TOTAL INT, CURRENT_CARTONS_TOTAL INT, CURRENT_TOTAL_ITEMS_SHELF INT, 
+        
 
-        int stockCode = Integer.parseInt(goods[0]);
-        String productDescript = goods[1];
-        char storageType = goods[2].charAt(0);
-        int wareHouseNum = Integer.parseInt(goods[3]);
-        int superMarketNum = Integer.parseInt(goods[4]);
-        int currentGoodsNum = Integer.parseInt(goods[5]);
+        try {
+            int stockCode = Integer.parseInt(goods[0]);
+            String productDescript = goods[1];
+            char storageType = goods[2].charAt(0);
+            int wareHouseNum = Integer.parseInt(goods[3]);
+            int superMarketNum = Integer.parseInt(goods[4]);
+            int currentGoodsNum = Integer.parseInt(goods[5]);
 
-        int currentShelfItemsOnShelfNum = Integer.parseInt(goods[6]);
-        Goods newGood = new CartonizedGoods(1000, 1000, currentGoodsNum, 100, currentShelfItemsOnShelfNum, stockCode, productDescript, storageType, wareHouseNum, superMarketNum);
+            int currentNumberItemsOnShelf = Integer.parseInt(goods[6]);
+            Goods newGood = new CartonizedGoods(1000, 1000, currentGoodsNum, 100, currentNumberItemsOnShelf, stockCode, productDescript, storageType, wareHouseNum, superMarketNum);
 
-        if (storageType == 'E') {
-            warehouseSuperMarket.flammablegoods.add(newGood);
-        } else if (storageType == 'F') {
-            warehouseSuperMarket.frozengoods.add(newGood);
-        } else if (storageType == 'C') {
-            warehouseSuperMarket.refrigeratedgoods.add(newGood);
-        } else if (storageType == 'R') {
-            warehouseSuperMarket.roomtemperaturegoods.add(newGood);
-            this.setChanged();
-            this.notifyObservers();
+            if (storageType == 'E') {
+                warehouseSuperMarket.flammablegoods.add(newGood);
+            } else if (storageType == 'F') {
+                warehouseSuperMarket.frozengoods.add(newGood);
+            } else if (storageType == 'C') {
+                warehouseSuperMarket.refrigeratedgoods.add(newGood);
+            } else if (storageType == 'R') {
+                warehouseSuperMarket.roomtemperaturegoods.add(newGood);
+                this.setChanged();
+                this.notifyObservers();
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing input values: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error adding carton goods: " + e.getMessage());
         }
 
     }
-
-   
 
     ///The saveGoodsDataGUI method should be triggered on close operation of the gui to ensure that all data is saved correctly. 
     public void saveGoodsDataGUI() throws IOException {
-        userManagement.saveToFile("users.dat");
-        System.out.println("Saved user data");
-        warehouseSuperMarket.goodsSorter();
-        warehouseSuperMarket.saveToFile(userToWrite);
 
-        warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.frozengoods, "FROZEN_GOODS");
-        warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.flammablegoods, "FLAMMABLE_GOODS ");
-        warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.roomtemperaturegoods, "ROOM_TEMP_GOODS ");
-        warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.refrigeratedgoods, "REFRIGERATED_GOODS ");
-        System.out.println("Saved market data");
-        warehouseSuperMarket.dbManager.closeConnections();
+        try {
+            userManagement.saveToFile("users.dat");
+            System.out.println("Saved user data");
+            warehouseSuperMarket.goodsSorter();
+            warehouseSuperMarket.saveToFile(userToWrite);
 
-        this.setChanged();
-        this.notifyObservers();
+            warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.frozengoods, "FROZEN_GOODS");
+            warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.flammablegoods, "FLAMMABLE_GOODS ");
+            warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.roomtemperaturegoods, "ROOM_TEMP_GOODS ");
+            warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.refrigeratedgoods, "REFRIGERATED_GOODS ");
+            System.out.println("Saved market data");
+            warehouseSuperMarket.dbManager.closeConnections();
 
+            this.setChanged();
+            this.notifyObservers();
+
+        } catch (Exception e) {
+            System.out.println("Unexpected error while saving goods data: " + e.getMessage());
+        }
     }
 
     public void moveItemFromWarehouseToShelfGUI(String[] itemsToBeMoved) {
-        Scanner keyboard = new Scanner(System.in);
 
-        int stockCodeSearchable = Integer.parseInt(itemsToBeMoved[0]);
-        double units = Double.parseDouble(itemsToBeMoved[1]);
+        try {
+            Scanner keyboard = new Scanner(System.in);
 
-        Goods foundGood = null;
+            int stockCodeSearchable = Integer.parseInt(itemsToBeMoved[0]);
+            double units = Double.parseDouble(itemsToBeMoved[1]);
 
-        for (Goods item : warehouseSuperMarket.frozengoods) {
-            if (item.getStockCode() == stockCodeSearchable) {
-                foundGood = item;
-                break;
-            }
-        }
+            Goods foundGood = null;
 
-        if (foundGood == null) {
-            for (Goods item : warehouseSuperMarket.flammablegoods) {
+            for (Goods item : warehouseSuperMarket.frozengoods) {
                 if (item.getStockCode() == stockCodeSearchable) {
                     foundGood = item;
                     break;
                 }
             }
-        }
 
-        if (foundGood == null) {
-            for (Goods item : warehouseSuperMarket.refrigeratedgoods) {
-                if (item.getStockCode() == stockCodeSearchable) {
-                    foundGood = item;
-                    break;
+            if (foundGood == null) {
+                for (Goods item : warehouseSuperMarket.flammablegoods) {
+                    if (item.getStockCode() == stockCodeSearchable) {
+                        foundGood = item;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (foundGood == null) {
-            for (Goods item : warehouseSuperMarket.roomtemperaturegoods) {
-                if (item.getStockCode() == stockCodeSearchable) {
-                    foundGood = item;
-                    break;
+            if (foundGood == null) {
+                for (Goods item : warehouseSuperMarket.refrigeratedgoods) {
+                    if (item.getStockCode() == stockCodeSearchable) {
+                        foundGood = item;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (foundGood != null) {
-            System.out.println("Here is the product that you requested: ");
-            System.out.println(foundGood.toString());
-            if (foundGood instanceof CartonizedGoods) {
-                System.out.println("How many units would you like to take from the warehouse and add to the supermarket bay?");
-
-                CartonizedGoods cartonizedGoods = (CartonizedGoods) foundGood;
-                int cartonUnits = (int) units;
-                warehouseSuperMarket.CartonizedMoveUnits(cartonizedGoods, cartonUnits);
-            } else if (foundGood instanceof BinGoodsOnPallet) {
-                System.out.println("How many kg would you like to take from the warehouse and add to the supermarket bay?");
-
-                BinGoodsOnPallet bingoods = (BinGoodsOnPallet) foundGood;
-                warehouseSuperMarket.binGoodsmoveUnits(bingoods, units);
+            if (foundGood == null) {
+                for (Goods item : warehouseSuperMarket.roomtemperaturegoods) {
+                    if (item.getStockCode() == stockCodeSearchable) {
+                        foundGood = item;
+                        break;
+                    }
+                }
             }
-            setMoveGoodsStockCode(foundGood.getStockCode());
-        } else {
-            System.out.println("Could not find a product with that StockCode.");
 
+            if (foundGood != null) {
+                System.out.println("Here is the product that you requested: ");
+                System.out.println(foundGood.toString());
+                if (foundGood instanceof CartonizedGoods) {
+                   
+
+                    CartonizedGoods cartonizedGoods = (CartonizedGoods) foundGood;
+                    int cartonUnits = (int) units;
+                    warehouseSuperMarket.CartonizedMoveUnits(cartonizedGoods, cartonUnits);
+                } else if (foundGood instanceof BinGoodsOnPallet) {
+                    
+
+                    BinGoodsOnPallet bingoods = (BinGoodsOnPallet) foundGood;
+                    warehouseSuperMarket.binGoodsmoveUnits(bingoods, units);
+                }
+                setMoveGoodsStockCode(foundGood.getStockCode());
+            } else {
+                System.out.println("Could not find a product with that StockCode.");
+
+            }
+            this.setChanged();
+            this.notifyObservers();
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing input values: " + e.getMessage());
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid input provided: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error moving items: " + e.getMessage());
         }
-        this.setChanged();
-        this.notifyObservers();
+
     }
 
     public Boolean deleteGoodsItemGUI(String[] itemsToDeleted) {
 
-        Boolean itemDeleted = false;
+        try {
+            Boolean itemDeleted = false;
 
-        int stockCodeSearchable = Integer.parseInt(itemsToDeleted[0]);
-        String description = itemsToDeleted[1];
+            int stockCodeSearchable = Integer.parseInt(itemsToDeleted[0]);
+            String description = itemsToDeleted[1];
 
-        Goods foundGood = null;
+            Goods foundGood = null;
+
+            for (Goods item : warehouseSuperMarket.frozengoods) {
+                if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
+                    foundGood = item;
+                    warehouseSuperMarket.frozengoods.remove(foundGood);
+                    itemDeleted = true;
+                    break;
+                }
+            }
+
+            if (foundGood == null) {
+                for (Goods item : warehouseSuperMarket.flammablegoods) {
+                    if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
+                        foundGood = item;
+                        warehouseSuperMarket.flammablegoods.remove(foundGood);
+                        itemDeleted = true;
+                        break;
+                    }
+                }
+            }
+
+            if (foundGood == null) {
+                for (Goods item : warehouseSuperMarket.refrigeratedgoods) {
+                    if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
+                        foundGood = item;
+                        warehouseSuperMarket.refrigeratedgoods.remove(foundGood);
+                        itemDeleted = true;
+                        break;
+                    }
+                }
+            }
+
+            if (foundGood == null) {
+                for (Goods item : warehouseSuperMarket.roomtemperaturegoods) {
+                    if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
+                        foundGood = item;
+                        warehouseSuperMarket.roomtemperaturegoods.remove(foundGood);
+                        itemDeleted = true;
+                        break;
+                    }
+                }
+            }
+            this.setChanged();
+            this.notifyObservers();
+            return itemDeleted;
+        } catch (NumberFormatException e) {
+            System.out.println("Error parsing input values: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            System.out.println("Error deleting goods item: " + e.getMessage());
+            return false;
+        }
+
+    }
+
+    public Goods findGood(String[] goodsData) {
+        
+        if (goodsData == null || goodsData.length < 2) {
+            throw new IllegalArgumentException("Invalid goodsData provided.");
+        }
+
+        Goods goodsItem = null;
+        int stockCode;
+
+        try {
+            stockCode = Integer.parseInt(goodsData[0]);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid stock code format.", e);
+        }
+
+        String description = goodsData[1];
 
         for (Goods item : warehouseSuperMarket.frozengoods) {
-            if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
-                foundGood = item;
-                warehouseSuperMarket.frozengoods.remove(foundGood);
-                itemDeleted = true;
+            if (item.getStockCode() == stockCode && item.getDescription().equals(description)) {
+                goodsItem = item;
                 break;
             }
         }
 
-        if (foundGood == null) {
+        if (goodsItem == null) {
             for (Goods item : warehouseSuperMarket.flammablegoods) {
-                if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
-                    foundGood = item;
-                    warehouseSuperMarket.flammablegoods.remove(foundGood);
-                    itemDeleted = true;
+                if (item.getStockCode() == stockCode && item.getDescription().equals(description)) {
+                    goodsItem = item;
                     break;
                 }
             }
         }
 
-        if (foundGood == null) {
+        if (goodsItem == null) {
             for (Goods item : warehouseSuperMarket.refrigeratedgoods) {
-                if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
-                    foundGood = item;
-                    warehouseSuperMarket.refrigeratedgoods.remove(foundGood);
-                    itemDeleted = true;
+                if (item.getStockCode() == stockCode && item.getDescription().equals(description)) {
+                    goodsItem = item;
                     break;
                 }
             }
         }
 
-        if (foundGood == null) {
+        if (goodsItem == null) {
             for (Goods item : warehouseSuperMarket.roomtemperaturegoods) {
-                if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
-                    foundGood = item;
-                    warehouseSuperMarket.roomtemperaturegoods.remove(foundGood);
-                    itemDeleted = true;
+                if (item.getStockCode() == stockCode && item.getDescription().equals(description)) {
+                    goodsItem = item;
                     break;
                 }
             }
         }
-        this.setChanged();
-        this.notifyObservers();
-        return itemDeleted;
+
+        if (goodsItem == null) {
+            return null;
+           
+            
+        }
+        
+        return goodsItem;
+        
     }
-    
-     
 
 }

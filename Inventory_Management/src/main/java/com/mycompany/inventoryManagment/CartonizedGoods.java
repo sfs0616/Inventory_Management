@@ -25,6 +25,8 @@ public class CartonizedGoods extends Goods implements Serializable{
         this.MAX_NUMBER_GOODS_PER_CARTON = MAX_NUMBER_GOODS_PER_CARTON;
         this.currentGoodsNumber = currentGoodsNumber;
         this.currentCartonsNumber = ((currentGoodsNumber)/(MAX_NUMBER_GOODS_PER_CARTON));
+        this.currentNumberOfItemsOnShelf = currentNumberOfItemsOnShelf;
+        
        
     }
 

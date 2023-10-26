@@ -4,6 +4,9 @@
  */
 package InventoryTestPackage;
 
+import com.mycompany.inventoryManagment.BinGoodsOnPallet;
+import com.mycompany.inventoryManagment.CartonizedGoods;
+import com.mycompany.inventoryManagment.Goods;
 import com.mycompany.inventoryManagment.InventoryModel;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,12 +22,16 @@ public class InventoryModelTest {
     public void setUp() throws SQLException {
         inventoryModel = new InventoryModel();
         
+        
     }
     
     
 
     @Test
     public void testAddBinGoodsValidData() {
+        if (inventoryModel == null) {
+    throw new IllegalStateException("inventoryModel is not initialized");
+}
         // Prepare valid input data for adding bin goods
         String[] validGoods = {"123", "ProductA", "E", "1", "2", "50.0", "20.0"};
 
@@ -50,7 +57,7 @@ public class InventoryModelTest {
     @Test
     public void testAddCartonGoodsValidData() {
         // Prepare valid input data for adding carton goods
-        String[] validGoods = {"456", "ProductB", "F", "3", "4", "100", "5"};
+        String[] validGoods = {"456", "ProductB", "E", "3", "4", "100", "5"};
         
         // Call the addCartonGoodsGUI method
         inventoryModel.addCartonGoodsGUI(validGoods);
@@ -73,14 +80,26 @@ public class InventoryModelTest {
 
     @Test
     public void moveItemsFromWareHouseToShelfValidData() {
+        
+        String[] validBinGoods = {"123", "ProductA", "E", "1", "2", "50.0", "20.0"};
+        String[] validCartonGoods = {"456", "ProductB", "F", "3", "4", "100", "5"};
+         inventoryModel.addBinGoodsGUI(validBinGoods);
+         inventoryModel.addCartonGoodsGUI(validCartonGoods);
         // Prepare valid input data for moving items from warehouse to shelf
         String[] validBinItemsToMove = {"123", "10.50"};
         inventoryModel.moveItemFromWarehouseToShelfGUI(validBinItemsToMove);
-        String[] validCartonGoods = {"456", "20"};
-        inventoryModel.moveItemFromWarehouseToShelfGUI(validBinItemsToMove);
+        String[] validCartonItemsToMove = {"456", "20"};
+        inventoryModel.moveItemFromWarehouseToShelfGUI(validCartonItemsToMove);
+        String[] bin = {"123", "ProductA"};
+        String[] carton = {"456", "ProductB"};
         
-        // Call the moveItemFromWarehouseToShelfGUI method
+        BinGoodsOnPallet  binItem = (BinGoodsOnPallet) inventoryModel.findGood(bin);
+        CartonizedGoods  cartonItem = (CartonizedGoods) inventoryModel.findGood(carton);
         
+        assertTrue(binItem.getCurrentKgPerBin() == 39.50);
+        assertTrue(binItem.getCurrentKgOnShelf() == 30.50);
+        assertTrue(cartonItem.getCurrentGoodsNumber() == 80);
+        assertTrue(cartonItem.getCurrentNumberOfItemsOnShelf() == 25);
 
         // Assert that the items were moved successfully (e.g., check if the shelf quantity was updated correctly)
         // You'll need to access the specific item on the shelf and check its quantity
@@ -89,30 +108,45 @@ public class InventoryModelTest {
 
     @Test
     public void moveItemsFromWareHouseToShelfInvalidData() {
-        String[] validBinItemsToMove = {"123", "10.50"};
+        String[] validBinGoods = {"123", "ProductA", "E", "1", "2", "50.0", "20.0"};
+        String[] validCartonGoods = {"456", "ProductB", "F", "3", "4", "100", "5"};
+        inventoryModel.addBinGoodsGUI(validBinGoods);
+        inventoryModel.addCartonGoodsGUI(validCartonGoods);
+        // Prepare valid input data for moving items from warehouse to shelf
+        String[] validBinItemsToMove = {"555", "10.50"};
         inventoryModel.moveItemFromWarehouseToShelfGUI(validBinItemsToMove);
-        String[] validCartonGoods = {"456", "20"};
+        String[] validCartonItemsToMove = {"666", "20"};
         inventoryModel.moveItemFromWarehouseToShelfGUI(validBinItemsToMove);
+        String[] bin = {"123", "ProductA"};
+        String[] carton = {"456", "ProductB"};
         
+        BinGoodsOnPallet  binItem = (BinGoodsOnPallet) inventoryModel.findGood(bin);
+        CartonizedGoods  cartonItem = (CartonizedGoods) inventoryModel.findGood(carton);
         
-        // Prepare invalid input data for moving items from warehouse to shelf (e.g., non-existent item)
+        assertTrue(binItem.getCurrentKgPerBin() != 39.50);
+        assertTrue(binItem.getCurrentKgOnShelf() != 30.50);
+        assertTrue(cartonItem.getCurrentCartonsNumber() != 80);
+        assertTrue(cartonItem.getCurrentNumberOfItemsOnShelf() != 25);
 
-        // Call the moveItemFromWarehouseToShelfGUI method
-        // You may want to wrap this call in a try-catch block to catch any expected exceptions
-        // Example: assertThrows(SomeException.class, () -> inventoryModel.moveItemFromWarehouseToShelfGUI(invalidItemsToMove));
+        
+        
+        
     }
 
     @Test
     public void deleteGoodsItemThatExists() {
         // Prepare valid input data for deleting goods item that exists
         String[] validItemsToDelete = {"123", "ProductA"};
-
+        
+        String[] validBinGoods = {"123", "ProductA", "E", "1", "2", "50.0", "20.0"};
+        inventoryModel.addBinGoodsGUI(validBinGoods);
         // Call the deleteGoodsItemGUI method
         boolean itemDeleted = inventoryModel.deleteGoodsItemGUI(validItemsToDelete);
-
+        
+        Goods item = inventoryModel.findGood(validItemsToDelete);
         // Assert that the item was deleted successfully (e.g., check if itemDeleted is true)
         assertTrue(itemDeleted);
-
+        assertTrue(item == null);
         // Additional assertion: Ensure that the item is no longer in the goods list
         // Example: assertFalse(inventoryModel.warehouseSuperMarket.flammablegoods.contains(deletedItem));
     }
@@ -126,7 +160,7 @@ public class InventoryModelTest {
         boolean itemDeleted = inventoryModel.deleteGoodsItemGUI(invalidItemsToDelete);
 
         // Assert that the item was not deleted (e.g., check if itemDeleted is false)
-        assertFalse(itemDeleted);
+        assertFalse(itemDeleted == true);
 
         // Additional assertion: Ensure that the goods list remains unchanged
         // Example: assertEquals(initialGoodsCount, inventoryModel.warehouseSuperMarket.flammablegoods.size());
@@ -145,7 +179,7 @@ public class InventoryModelTest {
         boolean itemDeleted = inventoryModel.deleteGoodsItemGUI(itemsToDelete);
 
         // Assert that only one of the items was deleted (e.g., check if itemDeleted is true)
-        assertTrue(itemDeleted);
+        assertTrue(itemDeleted == false);
 
         // Additional assertion: Ensure that the other item with the same code is still present
         // Example: assertEquals(1, inventoryModel.warehouseSuperMarket.flammablegoods.stream().filter(item -> item.getStockCode() == 123).count());

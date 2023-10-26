@@ -42,9 +42,12 @@
     <artifactId>derbyclient</artifactId>
     <version>10.14.2.0</version> 
 </dependency>
+<dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.7.2</version> 
+        <scope>test</scope>
+    </dependency>
 </dependencies>
     
 </project>
-
-
-jdbc:derby:userdb_AvraamEdb;create=true
