@@ -15,14 +15,15 @@ import java.sql.Statement;
  * @author Avraam
  */
 public class InventoryDatabaseManager {
-     static {
+
+    static {
         try {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
-    
+
     private User user;
     private String USER_NAME; //your DB username
     private static final String PASSWORD = "pdc"; //your DB password
@@ -36,11 +37,9 @@ public class InventoryDatabaseManager {
         this.URL = user.getDatabaseURL();
     }
 
-     
-     
-     public void setUser(User user){
-         this.user = user;
-     }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
 //    public static void main(String[] args) throws SQLException {
 //        InventoryDatabaseManager dbManager = new InventoryDatabaseManager();
@@ -51,52 +50,92 @@ public class InventoryDatabaseManager {
 //        //System.out.println(dbManager.closeConnection());
 //       
 //    }
-
     public Connection getConnection() throws SQLException {
-    if (this.conn == null || this.conn.isClosed()) {
-        establishConnection();
+        if (this.conn == null || this.conn.isClosed()) {
+            establishConnection();
+        }
+        return this.conn;
     }
-    return this.conn;
-}
-    
+
     public boolean checkUserDataBaseExists() {
-    boolean exists = false;
-    if (URL != null && !URL.trim().isEmpty()) {
-        try {
-            DriverManager.getConnection(URL, USER_NAME, PASSWORD);
-            closeConnections();
-            exists = true;
-        } catch (SQLException e) {
-            if (e.getErrorCode() == 40000) { // Specific error code for database not found
-                exists = false;
-            } else {
-                System.err.println("Error while checking database existence: " + e.getMessage());
+        boolean exists = false;
+        if (URL != null && !URL.trim().isEmpty()) {
+            try {
+                DriverManager.getConnection(URL, USER_NAME, PASSWORD);
+                closeConnections();
+                exists = true;
+            } catch (SQLException e) {
+                if (e.getErrorCode() == 40000) { // Specific error code for database not found
+                    exists = false;
+                } else {
+                    System.err.println("Error while checking database existence: " + e.getMessage());
+                }
             }
         }
+        if (!exists) {
+            createDataBaseForNewUser();
+        }
+        return exists;
     }
-    if (!exists) {
-       createDataBaseForNewUser();
-    }
-    return exists;
-}
+
     //Used chat gpt to figure out how to do this.
     public void createDataBaseForNewUser() {
-    String newDBURL = "jdbc:derby:" + "userdb_" + USER_NAME + "Edb" + ";create=true";
-   
-    try {
-        // Create the new database
-        Connection newDBConnection = DriverManager.getConnection(newDBURL, USER_NAME, PASSWORD);
+        String newDBURL = "jdbc:derby:" + "userdb_" + USER_NAME + "Edb" + ";create=true";
 
-        // Initialize tables in the new database
-        Statement statement = newDBConnection.createStatement();
-        
-        String[] createTableCommands = {
-            "CREATE TABLE FROZEN_GOODS (STOCK_CODE INT, PRODUCT_DESCRIPTION VARCHAR(100), STORAGE_TYPE VARCHAR(1), WAREHOUSE_BAY_NUM INT, SUPERMARKET_BAY_NUM INT, CURRENT_GOODS_TOTAL INT, CURRENT_CARTONS_TOTAL INT, CURRENT_TOTAL_ITEMS_SHELF INT, CURRENT_KG_BIN INT, CURRENT_KG_SHELF INT)",
-            "CREATE TABLE REFRIGERATED_GOODS (STOCK_CODE INT, PRODUCT_DESCRIPTION VARCHAR(100), STORAGE_TYPE VARCHAR(1), WAREHOUSE_BAY_NUM INT, SUPERMARKET_BAY_NUM INT, CURRENT_GOODS_TOTAL INT, CURRENT_CARTONS_TOTAL INT, CURRENT_TOTAL_ITEMS_SHELF INT, CURRENT_KG_BIN INT, CURRENT_KG_SHELF INT)",
-            "CREATE TABLE ROOM_TEMP_GOODS (STOCK_CODE INT, PRODUCT_DESCRIPTION VARCHAR(100), STORAGE_TYPE VARCHAR(1), WAREHOUSE_BAY_NUM INT, SUPERMARKET_BAY_NUM INT, CURRENT_GOODS_TOTAL INT, CURRENT_CARTONS_TOTAL INT, CURRENT_TOTAL_ITEMS_SHELF INT, CURRENT_KG_BIN INT, CURRENT_KG_SHELF INT)",
-            "CREATE TABLE FLAMMABLE_GOODS (STOCK_CODE INT, PRODUCT_DESCRIPTION VARCHAR(100), STORAGE_TYPE VARCHAR(1), WAREHOUSE_BAY_NUM INT, SUPERMARKET_BAY_NUM INT, CURRENT_GOODS_TOTAL INT, CURRENT_CARTONS_TOTAL INT, CURRENT_TOTAL_ITEMS_SHELF INT, CURRENT_KG_BIN INT, CURRENT_KG_SHELF INT)"
-        };
-        
+        try {
+            // Create the new database
+            Connection newDBConnection = DriverManager.getConnection(newDBURL, USER_NAME, PASSWORD);
+
+            // Initialize tables in the new database
+            Statement statement = newDBConnection.createStatement();
+
+            String[] createTableCommands = {
+                "CREATE TABLE FROZEN_GOODS (\n"
+                + "STOCK_CODE INT PRIMARY KEY NOT NULL,\n"
+                + "PRODUCT_DESCRIPTION VARCHAR(100) NOT NULL,\n"
+                + "STORAGE_TYPE VARCHAR(1) NOT NULL,\n"
+                + "WAREHOUSE_BAY_NUM INT NOT NULL,\n"
+                + "SUPERMARKET_BAY_NUM INT NOT NULL,\n"
+                + "CURRENT_GOODS_WAREHOUSE_CARTONIZED INT,\n"
+                + "CURRENT_CARTONS_TOTAL INT,\n"
+                + "CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED INT,\n"
+                + "CURRENT_KG_WAREHOUSE_BIN DECIMAL(10, 2),\n"
+                + "CURRENT_KG_SHELF_BIN DECIMAL(10, 2))\n",
+                "CREATE TABLE FLAMMABLE_GOODS (\n"
+               + "STOCK_CODE INT PRIMARY KEY NOT NULL,\n"
+                + "PRODUCT_DESCRIPTION VARCHAR(100) NOT NULL,\n"
+                + "STORAGE_TYPE VARCHAR(1) NOT NULL,\n"
+                + "WAREHOUSE_BAY_NUM INT NOT NULL,\n"
+                + "SUPERMARKET_BAY_NUM INT NOT NULL,\n"
+                + "CURRENT_GOODS_WAREHOUSE_CARTONIZED INT,\n"
+                + "CURRENT_CARTONS_TOTAL INT,\n"
+                + "CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED INT,\n"
+                + "CURRENT_KG_WAREHOUSE_BIN DECIMAL(10, 2),\n"
+                + "CURRENT_KG_SHELF_BIN DECIMAL(10, 2))\n",
+                "CREATE TABLE REFRIGERATED_GOODS (\n"
+                + "STOCK_CODE INT PRIMARY KEY NOT NULL,\n"
+                + "PRODUCT_DESCRIPTION VARCHAR(100) NOT NULL,\n"
+                + "STORAGE_TYPE VARCHAR(1) NOT NULL,\n"
+                + "WAREHOUSE_BAY_NUM INT NOT NULL,\n"
+                + "SUPERMARKET_BAY_NUM INT NOT NULL,\n"
+                + "CURRENT_GOODS_WAREHOUSE_CARTONIZED INT,\n"
+                + "CURRENT_CARTONS_TOTAL INT,\n"
+                + "CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED INT,\n"
+                + "CURRENT_KG_WAREHOUSE_BIN DECIMAL(10, 2),\n"
+                + "CURRENT_KG_SHELF_BIN DECIMAL(10, 2))\n",
+                "CREATE TABLE ROOM_TEMP_GOODS (\n"
+               + "STOCK_CODE INT PRIMARY KEY NOT NULL,\n"
+                + "PRODUCT_DESCRIPTION VARCHAR(100) NOT NULL,\n"
+                + "STORAGE_TYPE VARCHAR(1) NOT NULL,\n"
+                + "WAREHOUSE_BAY_NUM INT NOT NULL,\n"
+                + "SUPERMARKET_BAY_NUM INT NOT NULL,\n"
+                + "CURRENT_GOODS_WAREHOUSE_CARTONIZED INT,\n"
+                + "CURRENT_CARTONS_TOTAL INT,\n"
+                + "CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED INT,\n"
+                + "CURRENT_KG_WAREHOUSE_BIN DECIMAL(10, 2),\n"
+                + "CURRENT_KG_SHELF_BIN DECIMAL(10, 2))\n"
+            };
+
         for (String command : createTableCommands) {
             statement.execute(command);
             System.out.println("Table created: " + command.split(" ")[2]);
@@ -104,34 +143,34 @@ public class InventoryDatabaseManager {
         statement.close();
         newDBConnection.close();
 
-       
         // Update the class variable URL
-         user.setDatabaseURL("jdbc:derby:" + "userdb_" + USER_NAME + "Edb");
-         
+        user.setDatabaseURL("jdbc:derby:" + "userdb_" + USER_NAME + "Edb");
+
         System.out.println("New database and tables created successfully for user: " + USER_NAME);
-        
-        
-    } catch (SQLException e) {
-        System.err.println("Error while creating new database: " + e.getMessage());
-        
+
     }
+    catch (SQLException e
+
     
+        ) {
+            System.err.println("Error while creating new database: " + e.getMessage());
+
+    }
+
 }
 
-    //Establish connection
-     public void establishConnection() {
-    try {
-        // Establish a connection to Database
-        this.conn = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
-        System.out.println("Connection established successfully!");
-        System.out.println(user.getDatabaseURL());
-    } catch (SQLException e) {
-        System.err.println("Error while establishing a connection: " + e.getMessage());
-        // You may want to log the exception or take appropriate error-handling actions.
+//Establish connection
+public void establishConnection() {
+        try {
+            // Establish a connection to Database
+            this.conn = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
+            System.out.println("Connection established successfully!");
+            System.out.println(user.getDatabaseURL());
+        } catch (SQLException e) {
+            System.err.println("Error while establishing a connection: " + e.getMessage());
+            // You may want to log the exception or take appropriate error-handling actions.
+        }
     }
-}
-    
-
 
     public void closeConnections() {
         if (conn != null) {
@@ -161,8 +200,6 @@ public class InventoryDatabaseManager {
     }
 
     public void updateDB(String sql) {
-        
-        
 
         Connection connection = this.conn;
         Statement statement = null;
@@ -176,6 +213,5 @@ public class InventoryDatabaseManager {
             System.out.println(ex.getMessage());
         }
     }
-    
-    
+
 }

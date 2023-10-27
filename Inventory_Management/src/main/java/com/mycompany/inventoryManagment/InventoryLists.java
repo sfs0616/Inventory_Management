@@ -76,17 +76,14 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
     public ArrayList<Goods> getRoomtemperaturegoods() {
         return roomtemperaturegoods;
     }
-    
-   
 
     public InventoryLists() throws SQLException {
-        
+
     }
-    
-    public void establishDatabase(){
+
+    public void establishDatabase() {
         dbManager = new InventoryDatabaseManager(this.user);
     }
-    
 
     /**
      * Get the current user.
@@ -220,7 +217,6 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
 //            keyboard.nextLine();
 //        }
 //    }
-
     @Override
     public void printInventory() {
         System.out.println("Frozen Goods:");
@@ -340,7 +336,6 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
 //            keyboard.nextLine();
 //        }
 //    }
-
     /**
      * Adds bin pallet type goods to the inventory. This method prompts the user
      * to input details about the goods, including stock code, description,
@@ -431,7 +426,6 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
 //            keyboard.nextLine();
 //        }
 //    }
-
     /**
      * Moves a specified amount of kg from a bin pallet type good in the
      * warehouse to the supermarket shelf.
@@ -816,7 +810,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
             System.out.println("An error occurred while reading objects from Excel file: " + e.getMessage());
         }
         System.out.println("Goods saved to database");
-        
+
     }
 
 // Suggested by chat gpt currently unimplemented but will use later to increase reliability of excel imports/exports.
@@ -880,7 +874,18 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
         }
 
     }
-//Saves serialized objects to text file
+
+    public void upateUserExcelSpreadSheets() throws IOException {
+        try {
+            this.writeObjectsToExcel(this.flammablegoods, "Flammable", user);
+            this.writeObjectsToExcel(this.frozengoods, "Frozen", user);
+            this.writeObjectsToExcel(this.refrigeratedgoods, "Refrigerated", user);
+            this.writeObjectsToExcel(this.roomtemperaturegoods, "RoomTemperature", user);
+        } catch (IOException e) {
+            System.err.println("Error updating user Excel spreads: " + e.getMessage());
+
+        }
+    }//Saves serialized objects to text file
 
     public void saveToFile(User userToWrite) {
         this.writeObjectsToSerializedText(this.flammablegoods, "Flammable", userToWrite);
@@ -921,89 +926,164 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
         Collections.sort(this.roomtemperaturegoods);
     }
 
-    
-    
-    
+    public void dbAddCartonizedGoods(Goods goods, String tableName) throws SQLException {
+
+        PreparedStatement insertStmt;
+        String insertSQL = "INSERT INTO " + tableName + " (STOCK_CODE, PRODUCT_DESCRIPTION, STORAGE_TYPE, WAREHOUSE_BAY_NUM, SUPERMARKET_BAY_NUM, CURRENT_GOODS_WAREHOUSE_CARTONIZED, CURRENT_CARTONS_TOTAL, CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String productStorage = String.valueOf(goods.getStorageType());
+        insertStmt = dbManager.conn.prepareStatement(insertSQL);
+        insertStmt.setInt(1, goods.getStockCode());
+        insertStmt.setString(2, goods.getDescription());
+        insertStmt.setString(3, productStorage);
+        insertStmt.setInt(4, goods.getWarehouseBayNumber());
+        insertStmt.setInt(5, goods.getSupermarketBayNumber());
+        insertStmt.setInt(6, ((CartonizedGoods) goods).getCurrentGoodsNumber());
+        insertStmt.setInt(7, ((CartonizedGoods) goods).getCurrentCartonsNumber());
+        insertStmt.setInt(8, ((CartonizedGoods) goods).getCurrentNumberOfItemsOnShelf());
+        insertStmt.executeUpdate();
+    }
+
+    public void dbAddBinGoods(Goods goods, String tableName) throws SQLException {
+
+        PreparedStatement insertStmt;
+        String insertSQL = "INSERT INTO " + tableName + " (STOCK_CODE, PRODUCT_DESCRIPTION, STORAGE_TYPE, WAREHOUSE_BAY_NUM, SUPERMARKET_BAY_NUM, CURRENT_KG_WAREHOUSE_BIN, CURRENT_KG_SHELF_BIN) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String productStorage = String.valueOf(goods.getStorageType());
+        insertStmt = dbManager.conn.prepareStatement(insertSQL);
+        insertStmt.setInt(1, goods.getStockCode());
+        insertStmt.setString(2, goods.getDescription());
+        insertStmt.setString(3, productStorage);
+        insertStmt.setInt(4, goods.getWarehouseBayNumber());
+        insertStmt.setInt(5, goods.getSupermarketBayNumber());
+        insertStmt.setDouble(6, ((BinGoodsOnPallet) goods).getCurrentKgPerBin());
+        insertStmt.setDouble(7, ((BinGoodsOnPallet) goods).getCurrentKgOnShelf());
+        insertStmt.executeUpdate();
+    }
+
+    public void checkDbGoodsValuesCartonized(ResultSet rs, Goods good, String tableName) throws SQLException {
+        if (rs.getInt("CURRENT_GOODS_WAREHOUSE_CARTONIZED") != ((CartonizedGoods) good).getCurrentGoodsNumber()
+                || rs.getInt("CURRENT_CARTONS_TOTAL") != ((CartonizedGoods) good).getCurrentCartonsNumber()
+                || rs.getInt("CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED") != ((CartonizedGoods) good).getCurrentNumberOfItemsOnShelf()) {
+
+            String updateSQL = "UPDATE " + tableName + " SET CURRENT_GOODS_WAREHOUSE_CARTONIZED = ?, CURRENT_CARTONS_TOTAL = ?, CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED = ? WHERE STOCK_CODE = ?";
+            try ( PreparedStatement updateStmt = dbManager.conn.prepareStatement(updateSQL)) {
+                updateStmt.setInt(1, ((CartonizedGoods) good).getCurrentGoodsNumber());
+                updateStmt.setInt(2, ((CartonizedGoods) good).getCurrentCartonsNumber());
+                updateStmt.setInt(3, ((CartonizedGoods) good).getCurrentNumberOfItemsOnShelf());
+                updateStmt.setInt(4, good.getStockCode());
+
+                updateStmt.executeUpdate();
+            }
+        }
+
+    }
+
+    public void checkDbGoodsValuesBin(ResultSet rs, Goods good, String tableName) throws SQLException {
+        if (rs.getDouble("CURRENT_KG_WAREHOUSE_BIN") != ((BinGoodsOnPallet) good).getCurrentKgPerBin()
+                || rs.getDouble("CURRENT_KG_SHELF_BIN") != ((BinGoodsOnPallet) good).getCurrentKgOnShelf()) {
+
+            String updateSQL = "UPDATE " + tableName + " SET CURRENT_KG_WAREHOUSE_BIN = ?, CURRENT_KG_SHELF_BIN = ? WHERE STOCK_CODE = ?";
+            try ( PreparedStatement updateStmt = dbManager.conn.prepareStatement(updateSQL)) {
+                updateStmt.setDouble(1, ((BinGoodsOnPallet) good).getCurrentKgPerBin());
+                updateStmt.setDouble(2, ((BinGoodsOnPallet) good).getCurrentKgOnShelf());
+                updateStmt.setInt(3, good.getStockCode());
+                updateStmt.executeUpdate();
+            }
+        }
+
+    }
+
+    public void syncDatabase() {
+        syncObjectsToDB(flammablegoods, "FLAMMABLE_GOODS");
+        syncObjectsToDB(frozengoods, "FROZEN_GOODS");
+        syncObjectsToDB(refrigeratedgoods, "REFRIGERATED_GOODS");
+        syncObjectsToDB(roomtemperaturegoods, "ROOM_TEMP_GOODS");
+    }
+
     public void syncObjectsToDB(ArrayList<Goods> goodsArray, String tableName) {
         //dbManager.checkUserDataBaseExists()
-        
-    try {
-        for (Goods goods : goodsArray) {
-            String checkSQL = "SELECT * FROM " + tableName + " WHERE STOCK_CODE = ?";
-            
-            try (PreparedStatement checkStmt = dbManager.conn.prepareStatement(checkSQL)) {
-                checkStmt.setInt(1, goods.getStockCode());
-                
-                try (ResultSet rs = checkStmt.executeQuery()) {
-                    if (!rs.next()) {
-                         // Insert new row
-                    PreparedStatement insertStmt;
-                    if (goods instanceof CartonizedGoods) {
-                        String insertSQL = "INSERT INTO " + tableName + " (STOCK_CODE, PRODUCT_DESCRIPTION, STORAGE_TYPE, WAREHOUSE_BAY_NUM, SUPERMARKET_BAY_NUM, CURRENT_GOODS_TOTAL, CURRENT_CARTONS_TOTAL, CURRENT_TOTAL_ITEMS_SHELF) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                        String productStorage = String.valueOf(goods.getStorageType());
-                        insertStmt = dbManager.conn.prepareStatement(insertSQL);
-                        insertStmt.setInt(1, goods.getStockCode());
-                        insertStmt.setString(2, goods.getDescription());
-                        insertStmt.setString(3, productStorage);
-                        insertStmt.setInt(4, goods.getWarehouseBayNumber());
-                        insertStmt.setInt(5, goods.getSupermarketBayNumber());
-                        insertStmt.setInt(6, ((CartonizedGoods) goods).getCurrentGoodsNumber());
-                        insertStmt.setInt(7, ((CartonizedGoods) goods).getCurrentCartonsNumber());
-                        insertStmt.setInt(8, ((CartonizedGoods) goods).getCurrentNumberOfItemsOnShelf());
 
-                        insertStmt.executeUpdate();
-                    } else if (goods instanceof BinGoodsOnPallet) {
-                        String insertSQL = "INSERT INTO " + tableName + " (STOCK_CODE, PRODUCT_DESCRIPTION, STORAGE_TYPE, WAREHOUSE_BAY_NUM, SUPERMARKET_BAY_NUM, CURRENT_KG_BIN, CURRENT_KG_SHELF) VALUES (?, ?, ?, ?, ?, ?, ?)";
-                        String productStorage = String.valueOf(goods.getStorageType());
-                        insertStmt = dbManager.conn.prepareStatement(insertSQL);
-                        insertStmt.setInt(1, goods.getStockCode());
-                        insertStmt.setString(2, goods.getDescription());
-                        insertStmt.setString(3, productStorage);
-                        insertStmt.setInt(4, goods.getWarehouseBayNumber());
-                        insertStmt.setInt(5, goods.getSupermarketBayNumber());
-                        insertStmt.setDouble(6, ((BinGoodsOnPallet) goods).getCurrentKgPerBin());
-                        insertStmt.setDouble(7, ((BinGoodsOnPallet) goods).getCurrentKgOnShelf());
+        try {
+            for (Goods goods : goodsArray) {
+                String checkSQL = "SELECT * FROM " + tableName + " WHERE STOCK_CODE = ?";
 
-                        insertStmt.executeUpdate();
-                    }
-                    } else {
-                        if (goods instanceof CartonizedGoods) {
-                            if (rs.getInt("CURRENT_GOODS_TOTAL") != ((CartonizedGoods) goods).getCurrentGoodsNumber() 
-                                || rs.getInt("CURRENT_CARTONS_TOTAL") != ((CartonizedGoods) goods).getCurrentCartonsNumber() 
-                                || rs.getInt("CURRENT_TOTAL_ITEMS_SHELF") != ((CartonizedGoods) goods).getCurrentNumberOfItemsOnShelf()) {
-                                
-                                String updateSQL = "UPDATE " + tableName + " SET CURRENT_GOODS_TOTAL = ?, CURRENT_CARTONS_TOTAL = ?, CURRENT_TOTAL_ITEMS_SHELF = ? WHERE STOCK_CODE = ?";
-                                try (PreparedStatement updateStmt = dbManager.conn.prepareStatement(updateSQL)) {
-                                    updateStmt.setInt(1, ((CartonizedGoods) goods).getCurrentGoodsNumber());
-                                    updateStmt.setInt(2, ((CartonizedGoods) goods).getCurrentCartonsNumber());
-                                    updateStmt.setInt(3, ((CartonizedGoods) goods).getCurrentNumberOfItemsOnShelf());
-                                    updateStmt.setInt(4, goods.getStockCode());
+                try ( PreparedStatement checkStmt = dbManager.conn.prepareStatement(checkSQL)) {
+                    checkStmt.setInt(1, goods.getStockCode());
 
-                                    updateStmt.executeUpdate();
-                                }
-                            } 
+                    try ( ResultSet rs = checkStmt.executeQuery()) {
+                        if (!rs.next()) {
+                            // Insert new row
 
-                        } else if (goods instanceof BinGoodsOnPallet) {
-                            if (rs.getDouble("CURRENT_KG_BIN") != ((BinGoodsOnPallet) goods).getCurrentKgPerBin() 
-                                || rs.getDouble("CURRENT_KG_SHELF") != ((BinGoodsOnPallet) goods).getCurrentKgOnShelf()) {
-                                
-                                String updateSQL = "UPDATE " + tableName + " SET CURRENT_KG_BIN = ?, CURRENT_KG_SHELF = ? WHERE STOCK_CODE = ?";
-                                try (PreparedStatement updateStmt = dbManager.conn.prepareStatement(updateSQL)) {
-                                    updateStmt.setDouble(1, ((BinGoodsOnPallet) goods).getCurrentKgPerBin());
-                                    updateStmt.setDouble(2, ((BinGoodsOnPallet) goods).getCurrentKgOnShelf());
-                                    updateStmt.setInt(3, goods.getStockCode());
-                                    updateStmt.executeUpdate();
-                                }
+                            if (goods instanceof CartonizedGoods) {
+                                dbAddCartonizedGoods(goods, tableName);
+
+                            } else if (goods instanceof BinGoodsOnPallet) {
+                                dbAddBinGoods(goods, tableName);
+                            }
+                        } else {
+                            if (goods instanceof CartonizedGoods) {
+                                checkDbGoodsValuesCartonized(rs, goods, tableName);
+                            } else if (goods instanceof BinGoodsOnPallet) {
+                                checkDbGoodsValuesBin(rs, goods, tableName);
                             }
                         }
                     }
                 }
             }
+        } catch (SQLException e) {
+            System.err.println("Error syncing objects to DB: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        System.err.println("Error syncing objects to DB: " + e.getMessage());
     }
-}
+
+    public void loadDbTablesIntoInventory() {
+        readInDbInventoryLists();
+    }
+
+    public void readInDbInventoryLists() {
+        this.readDbGoods(frozengoods, "FROZEN_GOODS");
+        this.readDbGoods(flammablegoods, "FLAMMABLE_GOODS");
+        this.readDbGoods(refrigeratedgoods, "REFRIGERATED_GOODS");
+        this.readDbGoods(roomtemperaturegoods, "ROOM_TEMP_GOODS");
+    }
+
+    public void readDbGoods(ArrayList<Goods> goods, String tableName) {
+
+        try (
+                 PreparedStatement pstmt = dbManager.conn.prepareStatement("SELECT * FROM " + tableName)) {
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                int stockCode = rs.getInt("STOCK_CODE");
+                String description = rs.getString("PRODUCT_DESCRIPTION");
+                String storageTypeString = rs.getString("STORAGE_TYPE");
+                if (storageTypeString == null || storageTypeString.isEmpty()) {
+                    throw new IllegalStateException("Storage type is null or empty");
+                }
+                char storageType = storageTypeString.charAt(0);
+                int wareHouseBayNum = rs.getInt("WAREHOUSE_BAY_NUM");
+                int superMarketBayNum = rs.getInt("SUPERMARKET_BAY_NUM");
+                //For Carton goods. 
+                int currentGoodsWarehouse = rs.getInt("CURRENT_GOODS_WAREHOUSE_CARTONIZED");
+                if (rs.wasNull()) {
+                    double currentKgInWareHouse = rs.getDouble("CURRENT_KG_WAREHOUSE_BIN");
+                    double currentKgOnShelf = rs.getDouble("CURRENT_KG_SHELF_BIN");
+                    BinGoodsOnPallet binItem = new BinGoodsOnPallet(currentKgInWareHouse, 1000, 100, currentKgOnShelf, stockCode, description, storageType, wareHouseBayNum, superMarketBayNum);
+                    goods.add(binItem);
+                } else {
+
+                    int currentShelfItems = rs.getInt("CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED");
+                    CartonizedGoods cartonItem = new CartonizedGoods(1000, 10, currentGoodsWarehouse, 100, currentShelfItems, stockCode, description, storageType, wareHouseBayNum, superMarketBayNum);
+                    goods.add(cartonItem);
+                }
+
+            }
+            System.out.println("Table loaded: " + tableName);
+        } catch (Exception e) {
+            System.err.println("Error occurred while reading from the database: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+    }
 
     @Override
     public void addGoods() {

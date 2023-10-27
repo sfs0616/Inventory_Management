@@ -32,7 +32,7 @@ public class InventoryPanel extends JPanel implements Observer {
     private ArrayList<Goods> roomtemperaturegoods = new ArrayList<>();
     private InventoryModel model;
     Dimension preferredSize = new Dimension(300, 25);
-    private String[] columnNames = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE_TYPE", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT GOODS TOTAL", "CURRENT CARTONS TOTAL", "CURRENT TOTAL ITEMS SHELF", "CURRENT KG BIN", "CURRENT KG SHELF INT"};
+    private String[] columnNames = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE_TYPE", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT CARTON ITEMS WAREHOUSE", "CURRENT CARTONS TOTAL", "CURRENT CARTON ITEMS SHELF", "CURRENT KG BIN", "CURRENT KG SHELF BIN"};
     private DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
     @Override
     public boolean isCellEditable(int row, int column) {

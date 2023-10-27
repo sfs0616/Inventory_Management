@@ -72,7 +72,7 @@ public class InventoryModel extends Observable {
                 System.out.println(userToWrite.toString());
 
                 warehouseSuperMarket.setUser(userToWrite);
-                warehouseSuperMarket.loadSerializedDataForUser(userToWrite);
+
                 warehouseSuperMarket.establishDatabase();
 
             }
@@ -99,6 +99,7 @@ public class InventoryModel extends Observable {
 
         Boolean userDat = warehouseSuperMarket.dbManager.checkUserDataBaseExists();
         warehouseSuperMarket.dbManager.establishConnection();
+        warehouseSuperMarket.loadDbTablesIntoInventory();
         this.setChanged();
         this.notifyObservers();
 
@@ -116,7 +117,7 @@ public class InventoryModel extends Observable {
             int superMarketNum = Integer.parseInt(goods[4]);
             double currentKgInBin = Double.parseDouble(goods[5]);
             double currentKgOnShelf = Double.parseDouble(goods[6]);
-            Goods newGood = new BinGoodsOnPallet(currentKgInBin, 1000, 100, currentKgOnShelf, stockCode, productDescript, storageType, wareHouseNum, superMarketNum);
+            Goods newGood = new BinGoodsOnPallet(currentKgInBin, 1000, 10, currentKgOnShelf, stockCode, productDescript, storageType, wareHouseNum, superMarketNum);
             if (storageType == 'E') {
                 warehouseSuperMarket.flammablegoods.add(newGood);
             } else if (storageType == 'F') {
@@ -137,7 +138,6 @@ public class InventoryModel extends Observable {
     }
 
     public void addCartonGoodsGUI(String[] goods) {
-        
 
         try {
             int stockCode = Integer.parseInt(goods[0]);
@@ -148,7 +148,7 @@ public class InventoryModel extends Observable {
             int currentGoodsNum = Integer.parseInt(goods[5]);
 
             int currentNumberItemsOnShelf = Integer.parseInt(goods[6]);
-            Goods newGood = new CartonizedGoods(1000, 1000, currentGoodsNum, 100, currentNumberItemsOnShelf, stockCode, productDescript, storageType, wareHouseNum, superMarketNum);
+            Goods newGood = new CartonizedGoods(1000, 10, currentGoodsNum, 100, currentNumberItemsOnShelf, stockCode, productDescript, storageType, wareHouseNum, superMarketNum);
 
             if (storageType == 'E') {
                 warehouseSuperMarket.flammablegoods.add(newGood);
@@ -173,18 +173,18 @@ public class InventoryModel extends Observable {
     public void saveGoodsDataGUI() throws IOException {
 
         try {
+            warehouseSuperMarket.goodsSorter();
             userManagement.saveToFile("users.dat");
             System.out.println("Saved user data");
-            warehouseSuperMarket.goodsSorter();
+            
             warehouseSuperMarket.saveToFile(userToWrite);
+            warehouseSuperMarket.syncDatabase();
+            warehouseSuperMarket.upateUserExcelSpreadSheets();
 
-            warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.frozengoods, "FROZEN_GOODS");
-            warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.flammablegoods, "FLAMMABLE_GOODS ");
-            warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.roomtemperaturegoods, "ROOM_TEMP_GOODS ");
-            warehouseSuperMarket.syncObjectsToDB(warehouseSuperMarket.refrigeratedgoods, "REFRIGERATED_GOODS ");
+            
             System.out.println("Saved market data");
             warehouseSuperMarket.dbManager.closeConnections();
-
+            System.out.println("Connections closed");
             this.setChanged();
             this.notifyObservers();
 
@@ -241,13 +241,11 @@ public class InventoryModel extends Observable {
                 System.out.println("Here is the product that you requested: ");
                 System.out.println(foundGood.toString());
                 if (foundGood instanceof CartonizedGoods) {
-                   
 
                     CartonizedGoods cartonizedGoods = (CartonizedGoods) foundGood;
                     int cartonUnits = (int) units;
                     warehouseSuperMarket.CartonizedMoveUnits(cartonizedGoods, cartonUnits);
                 } else if (foundGood instanceof BinGoodsOnPallet) {
-                    
 
                     BinGoodsOnPallet bingoods = (BinGoodsOnPallet) foundGood;
                     warehouseSuperMarket.binGoodsmoveUnits(bingoods, units);
@@ -334,7 +332,7 @@ public class InventoryModel extends Observable {
     }
 
     public Goods findGood(String[] goodsData) {
-        
+
         if (goodsData == null || goodsData.length < 2) {
             throw new IllegalArgumentException("Invalid goodsData provided.");
         }
@@ -386,12 +384,11 @@ public class InventoryModel extends Observable {
 
         if (goodsItem == null) {
             return null;
-           
-            
+
         }
-        
+
         return goodsItem;
-        
+
     }
 
 }

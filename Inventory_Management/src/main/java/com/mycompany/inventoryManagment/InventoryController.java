@@ -46,7 +46,6 @@ public class InventoryController implements ActionListener {
 
     private void handleWindowClosing() throws IOException {
         model.saveGoodsDataGUI();
-
         System.exit(0); // Optionally, exit the application
     }
 
