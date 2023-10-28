@@ -1,14 +1,13 @@
-Sat Oct 28 00:47:37 NZDT 2023 : Apache Derby Network Server - 10.14.2.0 - (1828579) started and ready to accept connections on port 1527
 ----------------------------------------------------------------
-Sat Oct 28 00:47:37 NZDT 2023:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-018b-70f6-1530-0000444fc2a8 
+Sat Oct 28 16:46:19 NZDT 2023:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-018b-7463-cd85-00000f834000 
 on database directory C:\Users\Avraam\OneDrive\Documents\NetBeansProjects\Inventory Management\Inventory_Management\userdb_LucyEdb with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@2cdf8d8a 
-Loaded from file:/C:/Users/Avraam/OneDrive/Documents/NetBeansProjects/Inventory%20Management/Inventory_Management/db-derby-10.14.2.0-bin/lib/derby.jar
+Loaded from file:/C:/Users/Avraam/.m2/repository/org/apache/derby/derby/10.14.2.0/derby-10.14.2.0.jar
 java.vendor=Oracle Corporation
 java.runtime.version=11.0.19+9-LTS-224
-user.dir=C:\Users\Avraam\OneDrive\Documents\NetBeansProjects\Inventory Management\Inventory_Management\db-derby-10.14.2.0-bin
+user.dir=C:\Users\Avraam\OneDrive\Documents\NetBeansProjects\Inventory Management\Inventory_Management
 os.name=Windows 10
 os.arch=amd64
 os.version=10.0
-derby.system.home=C:\Users\Avraam\OneDrive\Documents\NetBeansProjects\Inventory Management\Inventory_Management
+derby.system.home=null
 Database Class Loader started - derby.database.classpath=''

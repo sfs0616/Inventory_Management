@@ -34,7 +34,7 @@ public class InventoryDatabaseManager {
     public InventoryDatabaseManager(User user) {
         this.user = user;
         this.USER_NAME = user.getUserName();
-        this.URL = user.getDatabaseURL();
+
     }
 
     public void setUser(User user) {
@@ -57,30 +57,37 @@ public class InventoryDatabaseManager {
         return this.conn;
     }
 
-    public boolean checkUserDataBaseExists() {
-        boolean exists = false;
-        if (URL != null && !URL.trim().isEmpty()) {
-            try {
-                DriverManager.getConnection(URL, USER_NAME, PASSWORD);
-                closeConnections();
-                exists = true;
-            } catch (SQLException e) {
-                if (e.getErrorCode() == 40000) { // Specific error code for database not found
-                    exists = false;
-                } else {
-                    System.err.println("Error while checking database existence: " + e.getMessage());
-                }
+    public void checkDbUrlConnection() {
+        try {
+            DriverManager.getConnection(this.user.databaseURL, this.user.userName, this.PASSWORD);
+            closeConnections();
+
+            System.out.println("Database Connects ok");
+        } catch (SQLException e) {
+            if (e.getErrorCode() == 40000) { // Specific error code for database not found
+
+            } else {
+                System.err.println("Error while checking database connection: " + e.getMessage());
             }
         }
-        if (!exists) {
-            createDataBaseForNewUser();
+    }
+
+    public boolean checkURLexists() {
+
+        if (this.user.databaseURL != null && !this.user.databaseURL.trim().isEmpty()) {
+            return true;
+
+        } else {
+            return false;
         }
-        return exists;
+
     }
 
     //Used chat gpt to figure out how to do this.
     public void createDataBaseForNewUser() {
         String newDBURL = "jdbc:derby:" + "userdb_" + USER_NAME + "Edb" + ";create=true";
+        System.out.println("Create new database called");
+        this.user.setDatabaseURL("jdbc:derby:" + "userdb_" + USER_NAME + "Edb");
 
         try {
             // Create the new database
@@ -102,7 +109,7 @@ public class InventoryDatabaseManager {
                 + "CURRENT_KG_WAREHOUSE_BIN DECIMAL(10, 2),\n"
                 + "CURRENT_KG_SHELF_BIN DECIMAL(10, 2))\n",
                 "CREATE TABLE FLAMMABLE_GOODS (\n"
-               + "STOCK_CODE INT PRIMARY KEY NOT NULL,\n"
+                + "STOCK_CODE INT PRIMARY KEY NOT NULL,\n"
                 + "PRODUCT_DESCRIPTION VARCHAR(100) NOT NULL,\n"
                 + "STORAGE_TYPE VARCHAR(1) NOT NULL,\n"
                 + "WAREHOUSE_BAY_NUM INT NOT NULL,\n"
@@ -124,7 +131,7 @@ public class InventoryDatabaseManager {
                 + "CURRENT_KG_WAREHOUSE_BIN DECIMAL(10, 2),\n"
                 + "CURRENT_KG_SHELF_BIN DECIMAL(10, 2))\n",
                 "CREATE TABLE ROOM_TEMP_GOODS (\n"
-               + "STOCK_CODE INT PRIMARY KEY NOT NULL,\n"
+                + "STOCK_CODE INT PRIMARY KEY NOT NULL,\n"
                 + "PRODUCT_DESCRIPTION VARCHAR(100) NOT NULL,\n"
                 + "STORAGE_TYPE VARCHAR(1) NOT NULL,\n"
                 + "WAREHOUSE_BAY_NUM INT NOT NULL,\n"
@@ -136,34 +143,30 @@ public class InventoryDatabaseManager {
                 + "CURRENT_KG_SHELF_BIN DECIMAL(10, 2))\n"
             };
 
-        for (String command : createTableCommands) {
-            statement.execute(command);
-            System.out.println("Table created: " + command.split(" ")[2]);
-        }
-        statement.close();
-        newDBConnection.close();
+            for (String command : createTableCommands) {
+                statement.execute(command);
+                System.out.println("Table created: " + command.split(" ")[2]);
+            }
+            statement.close();
+            newDBConnection.close();
 
-        // Update the class variable URL
-        user.setDatabaseURL("jdbc:derby:" + "userdb_" + USER_NAME + "Edb");
+            // Update the class variable URL
+            
 
-        System.out.println("New database and tables created successfully for user: " + USER_NAME);
+            System.out.println("New database and tables created successfully for user: " + USER_NAME);
 
-    }
-    catch (SQLException e
-
-    
-        ) {
+        } catch (SQLException e) {
             System.err.println("Error while creating new database: " + e.getMessage());
+            e.printStackTrace();
+        }
 
     }
-
-}
 
 //Establish connection
-public void establishConnection() {
+    public void establishConnection() {
         try {
             // Establish a connection to Database
-            this.conn = DriverManager.getConnection(URL, USER_NAME, PASSWORD);
+            this.conn = DriverManager.getConnection(user.databaseURL, USER_NAME, PASSWORD);
             System.out.println("Connection established successfully!");
             System.out.println(user.getDatabaseURL());
         } catch (SQLException e) {

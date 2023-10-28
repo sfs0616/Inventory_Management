@@ -81,9 +81,12 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
 
     }
 
-    public void establishDatabase() {
-        dbManager = new InventoryDatabaseManager(this.user);
+    public void establishDatabaseManager() {
+        dbManager = new InventoryDatabaseManager(user);
+        
     }
+    
+   
 
     /**
      * Get the current user.
@@ -1000,7 +1003,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
     }
 
     public void syncObjectsToDB(ArrayList<Goods> goodsArray, String tableName) {
-        //dbManager.checkUserDataBaseExists()
+        //dbManager.checkURLexists()
 
         try {
             for (Goods goods : goodsArray) {

@@ -26,8 +26,8 @@ public class AddBinGoodsPanel extends JPanel {
 
     private JTextField[] textFields;
     private int cols = 7;
-    private String[] columnLabels = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE TYPE", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT KG BIN", "CURRENT KG SHELF"};
-    
+    private String[] columnLabels = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE TYPE 'R,E,F,C'", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT KG IN WAREHOUSE BIN", "CURRENT KG ON SHELF"};
+
     private String[] data;
     private JButton submitButton;
     private JButton goBack;
@@ -37,7 +37,7 @@ public class AddBinGoodsPanel extends JPanel {
     }
 
     public AddBinGoodsPanel() {
-        
+
         data = new String[cols];
         setLayout(new BorderLayout());
 
@@ -83,16 +83,17 @@ public class AddBinGoodsPanel extends JPanel {
     public void submitData() {
         for (int j = 0; j < cols; j++) {
             data[j] = textFields[j].getText();
-            System.out.println("Data at column " + j + " = " + data);
+            System.out.println("Data at column " + j + " = " + data[j]);
+            textFields[j].setText("");
+
         }
+
     }
 
     public void addSubmitBinGoodsButtonListener(ActionListener listener) {
-    Exception e = new Exception("addSubmitBinGoodsButtonListener called");
-    e.printStackTrace();
-    System.out.println("ActionListeners added");
-    submitButton.addActionListener(listener);
-}
+
+        submitButton.addActionListener(listener);
+    }
 
     public void addGoBackBinButtonActionListener(ActionListener listener) {
         goBack.addActionListener(listener);
@@ -102,18 +103,22 @@ public class AddBinGoodsPanel extends JPanel {
         submitButton.setActionCommand("SubmitBinGoods");
         goBack.setActionCommand("GoBack");
     }
-    
+
     public void invalidStorageMessage() {
         JOptionPane.showMessageDialog(this, "Error, Invalid storage type. Please enter from one of the following character types: \n 'E':Flammable, 'C':Refrigerated, 'F': Frozen, 'R': Room temperature");
     }
 
-    
     public void goodsAddedMessage() {
         JOptionPane.showMessageDialog(this, "Goods Added to inventory. Check inventory page.");
     }
-    
+
     public void invalidFields() {
         JOptionPane.showMessageDialog(this, "Invalid fields. Please make sure all fields have values.");
         System.out.println("Invalid storage message displayed");
+    }
+    
+    public void primaryKeyAlreadyExists() {
+        JOptionPane.showMessageDialog(this, "Stock code already exists in lists. Please choose a different stock code.");
+        System.out.println("Invalid stock code message displayed");
     }
 }

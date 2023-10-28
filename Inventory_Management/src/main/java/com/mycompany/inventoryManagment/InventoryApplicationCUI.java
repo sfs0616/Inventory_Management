@@ -93,8 +93,8 @@ public class InventoryApplicationCUI {
                 System.out.println("Failed to create user directory.");
             }
         }
-        warehousesupermarket.establishDatabase();
-        Boolean userDat = warehousesupermarket.dbManager.checkUserDataBaseExists();
+        warehousesupermarket.establishDatabaseManager();
+        Boolean userDat = warehousesupermarket.dbManager.checkURLexists();
         
             warehousesupermarket.dbManager.establishConnection();
         

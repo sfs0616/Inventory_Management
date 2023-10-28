@@ -32,13 +32,13 @@ public class InventoryPanel extends JPanel implements Observer {
     private ArrayList<Goods> roomtemperaturegoods = new ArrayList<>();
     private InventoryModel model;
     Dimension preferredSize = new Dimension(300, 25);
-    private String[] columnNames = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE_TYPE", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT CARTON ITEMS WAREHOUSE", "CURRENT CARTONS TOTAL", "CURRENT CARTON ITEMS SHELF", "CURRENT KG BIN", "CURRENT KG SHELF BIN"};
+    private String[] columnNames = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE_TYPE", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT CARTON ITEMS WAREHOUSE", "CURRENT CARTONS TOTAL", "CURRENT CARTON ITEMS SHELF", "CURRENT KG WAREHOUSE BIN", "CURRENT KG SHELF BIN"};
     private DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
-    @Override
-    public boolean isCellEditable(int row, int column) {
-        return false;  
-    }
-};
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    };
     private JTable table;
     private JScrollPane scrollPane = new JScrollPane(table);
     private JButton frozenButton; //When this button is clicked the inventory for frozen goods is displayed in the Jtable
@@ -47,8 +47,8 @@ public class InventoryPanel extends JPanel implements Observer {
     private JButton roomTemperatureButton;//When this button is clicked the inventory for room temperature goods is displayed in the Jtable
     private JButton addCartonizedGoods; //When this button is clicked it triggers the addCartonizedGoods method in the model;
     private JButton addBinGoods;
-    private JButton changePallets; //When this button is good it triggers the changePallets method in the model;
-    private JButton changeSupermarketShelves; //When this button is clicked it triggers the change number of supermarket shelves method in the model 
+//    private JButton changePallets; //When this button is good it triggers the changePallets method in the model;
+//    private JButton changeSupermarketShelves; //When this button is clicked it triggers the change number of supermarket shelves method in the model 
     private JButton moveGoods; // When this button is clicked the movegoods method is triggered
     private JButton deleteGoodsPanelButton;
 
@@ -87,27 +87,26 @@ public class InventoryPanel extends JPanel implements Observer {
     public InventoryPanel(InventoryModel model) {
         this.model = model;
         model.addObserver(this);
-        deleteGoodsPanelButton = new JButton("Delete goods from list");
-        addBinGoods = new JButton("Add Bin Goods to a list");
+        deleteGoodsPanelButton = new JButton("DELETE GOODS FROM A LIST");
+        deleteGoodsPanelButton.setPreferredSize(preferredSize);
+        addBinGoods = new JButton("ADD A NEW BIN GOOD TO A LIST");
         addBinGoods.setPreferredSize(preferredSize);
-        frozenButton = new JButton("Diaplay frozen goods list");
+        frozenButton = new JButton("DISPLAY FROZEN GOODS LIST 'F'");
         frozenButton.setPreferredSize(preferredSize);
-        flammableButton = new JButton("Display flammable goods list");
+        flammableButton = new JButton("DISPLAY FLAMMABLE GOODS LIST 'E'");
         flammableButton.setPreferredSize(preferredSize);
-        refrigeratedButton = new JButton("Display refrigerated goods list");
+        refrigeratedButton = new JButton("DISPLAY REFRIGERATED GOODS LIST 'C'");
         refrigeratedButton.setPreferredSize(preferredSize);
-        roomTemperatureButton = new JButton("Displat room temp goods list");
+        roomTemperatureButton = new JButton("DISPLAY ROOM TEMP GOODS LIST 'R'");
         roomTemperatureButton.setPreferredSize(preferredSize);
-        addCartonizedGoods = new JButton("Add new cartonized product");
+        addCartonizedGoods = new JButton("ADD A NEW CARTONIZED GOOD TO A LIST");
         addCartonizedGoods.setPreferredSize(preferredSize);
-        changePallets = new JButton("Change warehouse area total pallets");
-        changePallets.setPreferredSize(preferredSize);
-        moveGoods = new JButton("Move goods from warehouse to shelf");
+//        changePallets = new JButton("Change warehouse area total pallets");
+//        changePallets.setPreferredSize(preferredSize);
+        moveGoods = new JButton("MOVE GOODS ITEMS FROM WAREHOUSE TO SHELF");
         moveGoods.setPreferredSize(preferredSize);
-        changeSupermarketShelves = new JButton("Change number of supermarket Shelves");
-        changeSupermarketShelves.setPreferredSize(preferredSize);
-        
-        
+//        changeSupermarketShelves = new JButton("Change number of supermarket Shelves");
+//        changeSupermarketShelves.setPreferredSize(preferredSize);
 
         table = new JTable(tableModel);
         scrollPane = new JScrollPane(table);
@@ -129,13 +128,10 @@ public class InventoryPanel extends JPanel implements Observer {
         add(flammableButton, gbc);
         add(refrigeratedButton, gbc);
         add(roomTemperatureButton, gbc);
-        add(moveGoods, gbc);
         add(addCartonizedGoods, gbc);
         add(addBinGoods, gbc);
-        add(changePallets, gbc);
-        add(changeSupermarketShelves, gbc);
+        add(moveGoods, gbc);
         add(deleteGoodsPanelButton, gbc);
-        
 
         // Add and format the scroll pane
         gbc.gridx = 1;
@@ -153,12 +149,12 @@ public class InventoryPanel extends JPanel implements Observer {
         refrigeratedButton.setActionCommand("Refrigerated");
         roomTemperatureButton.setActionCommand("RoomTemperature");
         addCartonizedGoods.setActionCommand("Add Cartonized Goods");
-        changePallets.setActionCommand("ChangePallets");
-        changeSupermarketShelves.setActionCommand("ChangeSupermarketShelves");
+//        changePallets.setActionCommand("ChangePallets");
+//        changeSupermarketShelves.setActionCommand("ChangeSupermarketShelves");
         moveGoods.setActionCommand("GetMoveGoodsPanel");
         addBinGoods.setActionCommand("AddBinGoods");
         deleteGoodsPanelButton.setActionCommand("Show Delete Goods Panel");
-        
+
     }
 
     @Override
@@ -170,8 +166,8 @@ public class InventoryPanel extends JPanel implements Observer {
         this.setRoomtemperaturegoods(model.getWarehouseSuperMarket().getRoomtemperaturegoods());
         repaintTables();
     }
-    
-    public void repaintTables(){
+
+    public void repaintTables() {
         updateTableData(frozengoods);
         updateTableData(flammablegoods);
         updateTableData(refrigeratedgoods);
@@ -222,14 +218,12 @@ public class InventoryPanel extends JPanel implements Observer {
         roomTemperatureButton.addActionListener(listener);
     }
 
-    public void addChangePalletsButtonListener(ActionListener listener) {
-        changePallets.addActionListener(listener);
-    }
-
-    public void addChangeSupermarketShelvesButtonListener(ActionListener listener) {
-        changeSupermarketShelves.addActionListener(listener);
-    }
-
+//    public void addChangePalletsButtonListener(ActionListener listener) {
+//        changePallets.addActionListener(listener);
+//    }
+//    public void addChangeSupermarketShelvesButtonListener(ActionListener listener) {
+//        changeSupermarketShelves.addActionListener(listener);
+//    }
     public void addAddCartonizedGoodsButtonListener(ActionListener listener) {
         addCartonizedGoods.addActionListener(listener);
     }
@@ -241,7 +235,7 @@ public class InventoryPanel extends JPanel implements Observer {
     public void addMoveGoodsButtonListener(ActionListener listener) {
         moveGoods.addActionListener(listener);
     }
-    
+
     public void addDeleteGoodsButtonActionListener(ActionListener listener) {
         deleteGoodsPanelButton.addActionListener(listener);
     }

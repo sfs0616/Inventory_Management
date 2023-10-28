@@ -24,6 +24,7 @@ import javax.swing.SwingConstants;
  * @author Avraam
  */
 public class MoveGoodsPanel extends JPanel implements Observer {
+
     private JTextField[] textFields;
     private int cols = 2;
     private String[] columnLabels = {"STOCK CODE", "UNITS TO BE MOVED (KG OR ITEM)"};
@@ -37,7 +38,7 @@ public class MoveGoodsPanel extends JPanel implements Observer {
     }
 
     public MoveGoodsPanel(InventoryModel model) {
-         this.model = model;
+        this.model = model;
         model.addObserver(this);
         data = new String[cols];
         setLayout(new BorderLayout());
@@ -97,13 +98,14 @@ public class MoveGoodsPanel extends JPanel implements Observer {
         for (int j = 0; j < cols; j++) {
             data[j] = textFields[j].getText();
             System.out.println("Data at column " + j + " = " + data[j]);
+            textFields[j].setText("");
+
         }
+
     }
 
     public void addMoveGoodsButtonListener(ActionListener listener) {
-        Exception e = new Exception("addMoveGoodsButtonListener called");
-        e.printStackTrace();
-        System.out.println("ActionListeners added");
+
         moveGoodsButton.addActionListener(listener);
     }
 
@@ -120,16 +122,16 @@ public class MoveGoodsPanel extends JPanel implements Observer {
         JOptionPane.showMessageDialog(this, "Goods Moved");
     }
 
-    public void errorCheckStockNumber() {
-        JOptionPane.showMessageDialog(this, "Error Check stock number");
+    public void errorInvalidFields() {
+        JOptionPane.showMessageDialog(this, "Pleas enter valid values into fields");
     }
 
     public void errorCheckQuantitiesInExistingInventory() {
-        JOptionPane.showMessageDialog(this, "Error Check Quantities in Existing Inventory");
+        JOptionPane.showMessageDialog(this, "Error Check Quantities in Existing Inventory, make sure values are correct.");
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        
+
     }
 }

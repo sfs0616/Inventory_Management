@@ -30,7 +30,7 @@ public class AddCartonizedGoodsPanel extends JPanel{
     private JTextField[] textFields;
     
     private int cols = 7;
-    private String[] columnLabels = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE TYPE", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT GOODS TOTAL", "CURRENT TOTAL ITEMS SHELF"};
+    private String[] columnLabels = {"STOCK CODE", "PRODUCT DESCRIPTION", "STORAGE TYPE 'R,E,F,C'", "WAREHOUSE BAY NUM", "SUPERMARKET BAY NUM", "CURRENT WAREHOUSE ITEMS TOTAL", "CURRENT TOTAL ITEMS SHELF"};
     
     private String[] data;
     private JButton submitButton;
@@ -94,11 +94,14 @@ public class AddCartonizedGoodsPanel extends JPanel{
     
 
     // Method to handle the data submission
-    public void submitCartonData() {
+     public void submitData() {
         for (int j = 0; j < cols; j++) {
             data[j] = textFields[j].getText();
-            System.out.println("Data at column " + j + " = " + data);
+            System.out.println("Data at column " + j + " = " + data[j]);
+            textFields[j].setText("");
+
         }
+
     }
     
      public void addSubmitButtonListener(ActionListener listener) {
@@ -125,6 +128,11 @@ public class AddCartonizedGoodsPanel extends JPanel{
     
     public void invalidFields() {
         JOptionPane.showMessageDialog(this, "Invalid fields. Please make sure all fields have values.");
+    }
+    
+     public void primaryKeyAlreadyExists() {
+        JOptionPane.showMessageDialog(this, "Stock code already exists in lists. Please choose a different stock code.");
+        System.out.println("Invalid stock code message displayed");
     }
 
     

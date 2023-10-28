@@ -63,7 +63,7 @@ public class InventoryModel extends Observable {
                 break;
             }
         }
-        if (ifUserExists) {
+        if (ifUserExists == true) {
             System.out.println("User exists");
             // Load matched user's data. 
             userToWrite = userManagement.getUserByUsername(username);
@@ -73,7 +73,9 @@ public class InventoryModel extends Observable {
 
                 warehouseSuperMarket.setUser(userToWrite);
 
-                warehouseSuperMarket.establishDatabase();
+                warehouseSuperMarket.establishDatabaseManager();
+                warehouseSuperMarket.dbManager.establishConnection();
+                warehouseSuperMarket.loadDbTablesIntoInventory();
 
             }
         } else {
@@ -83,6 +85,8 @@ public class InventoryModel extends Observable {
             userToWrite.setUserName(username);
             userManagement.addUser(userToWrite);
             warehouseSuperMarket.setUser(userToWrite);
+            warehouseSuperMarket.establishDatabaseManager();
+            
 
             // Create a directory for the new user
             String userDirectoryPath = System.getProperty("user.dir") + File.separator + username;
@@ -94,18 +98,25 @@ public class InventoryModel extends Observable {
             } else {
                 System.out.println("Failed to create user directory.");
             }
-            warehouseSuperMarket.establishDatabase();
+            warehouseSuperMarket.dbManager.createDataBaseForNewUser();
+            Boolean userDat = warehouseSuperMarket.dbManager.checkURLexists();
+            warehouseSuperMarket.dbManager.checkDbUrlConnection();
+            warehouseSuperMarket.dbManager.establishConnection();
+        if (userDat == true) {
+            System.out.println("Database for new user created.");
+            this.setChanged();
+            this.notifyObservers();
+        } else {
+            System.out.println("Error connecting to new user db, line 109 InventoryModel");
         }
 
-        Boolean userDat = warehouseSuperMarket.dbManager.checkUserDataBaseExists();
-        warehouseSuperMarket.dbManager.establishConnection();
-        warehouseSuperMarket.loadDbTablesIntoInventory();
-        this.setChanged();
-        this.notifyObservers();
+        }
+
+       
 
     }
 
-    public void addBinGoodsGUI(String[] goods) {
+    public Boolean addBinGoodsGUI(String[] goods) {
         //STOCK_CODE INT, PRODUCT_DESCRIPTION VARCHAR(100), STORAGE_TYPE
 //VARCHAR(1), WAREHOUSE_BAY_NUM INT, SUPERMARKET_BAY_NUM INT, CURRENT_KG_BIN INT, CURRENT_KG_SHELF INT
 
@@ -126,18 +137,23 @@ public class InventoryModel extends Observable {
                 warehouseSuperMarket.refrigeratedgoods.add(newGood);
             } else if (storageType == 'R') {
                 warehouseSuperMarket.roomtemperaturegoods.add(newGood);
-                this.setChanged();
-                this.notifyObservers();
+
             }
 
         } catch (NumberFormatException e) {
             System.out.println("Error parsing input values: " + e.getMessage());
+            return false;
+
         } catch (Exception e) {
             System.out.println("Error adding bin goods: " + e.getMessage());
+            return false;
         }
+        this.setChanged();
+        this.notifyObservers();
+        return true;
     }
 
-    public void addCartonGoodsGUI(String[] goods) {
+    public Boolean addCartonGoodsGUI(String[] goods) {
 
         try {
             int stockCode = Integer.parseInt(goods[0]);
@@ -163,9 +179,14 @@ public class InventoryModel extends Observable {
             }
         } catch (NumberFormatException e) {
             System.out.println("Error parsing input values: " + e.getMessage());
+            return false;
         } catch (Exception e) {
             System.out.println("Error adding carton goods: " + e.getMessage());
+            return false;
         }
+        this.setChanged();
+        this.notifyObservers();
+        return true;
 
     }
 
@@ -176,12 +197,11 @@ public class InventoryModel extends Observable {
             warehouseSuperMarket.goodsSorter();
             userManagement.saveToFile("users.dat");
             System.out.println("Saved user data");
-            
+
             warehouseSuperMarket.saveToFile(userToWrite);
             warehouseSuperMarket.syncDatabase();
             warehouseSuperMarket.upateUserExcelSpreadSheets();
 
-            
             System.out.println("Saved market data");
             warehouseSuperMarket.dbManager.closeConnections();
             System.out.println("Connections closed");
@@ -193,8 +213,8 @@ public class InventoryModel extends Observable {
         }
     }
 
-    public void moveItemFromWarehouseToShelfGUI(String[] itemsToBeMoved) {
-
+    public Boolean moveItemFromWarehouseToShelfGUI(String[] itemsToBeMoved) {
+        Boolean itemFound = false;
         try {
             Scanner keyboard = new Scanner(System.in);
 
@@ -205,6 +225,7 @@ public class InventoryModel extends Observable {
 
             for (Goods item : warehouseSuperMarket.frozengoods) {
                 if (item.getStockCode() == stockCodeSearchable) {
+
                     foundGood = item;
                     break;
                 }
@@ -213,6 +234,7 @@ public class InventoryModel extends Observable {
             if (foundGood == null) {
                 for (Goods item : warehouseSuperMarket.flammablegoods) {
                     if (item.getStockCode() == stockCodeSearchable) {
+
                         foundGood = item;
                         break;
                     }
@@ -245,32 +267,41 @@ public class InventoryModel extends Observable {
                     CartonizedGoods cartonizedGoods = (CartonizedGoods) foundGood;
                     int cartonUnits = (int) units;
                     warehouseSuperMarket.CartonizedMoveUnits(cartonizedGoods, cartonUnits);
+                    this.setChanged();
+                    this.notifyObservers();
+                    return true;
                 } else if (foundGood instanceof BinGoodsOnPallet) {
 
                     BinGoodsOnPallet bingoods = (BinGoodsOnPallet) foundGood;
                     warehouseSuperMarket.binGoodsmoveUnits(bingoods, units);
+                    this.setChanged();
+                    this.notifyObservers();
+                    return true;
                 }
-                setMoveGoodsStockCode(foundGood.getStockCode());
-            } else {
-                System.out.println("Could not find a product with that StockCode.");
 
+            } else {
+                System.out.println("Could not find a product with that StockCode: " + foundGood.getStockCode());
+                return false;
             }
             this.setChanged();
             this.notifyObservers();
         } catch (NumberFormatException e) {
             System.out.println("Error parsing input values: " + e.getMessage());
+            return false;
         } catch (InputMismatchException e) {
             System.out.println("Invalid input provided: " + e.getMessage());
+            return false;
         } catch (Exception e) {
             System.out.println("Error moving items: " + e.getMessage());
+            return false;
         }
 
+        return false;
     }
 
     public Boolean deleteGoodsItemGUI(String[] itemsToDeleted) {
 
         try {
-            Boolean itemDeleted = false;
 
             int stockCodeSearchable = Integer.parseInt(itemsToDeleted[0]);
             String description = itemsToDeleted[1];
@@ -281,8 +312,10 @@ public class InventoryModel extends Observable {
                 if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
                     foundGood = item;
                     warehouseSuperMarket.frozengoods.remove(foundGood);
-                    itemDeleted = true;
-                    break;
+                    this.setChanged();
+                    this.notifyObservers();
+                    return true;
+
                 }
             }
 
@@ -291,8 +324,10 @@ public class InventoryModel extends Observable {
                     if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
                         foundGood = item;
                         warehouseSuperMarket.flammablegoods.remove(foundGood);
-                        itemDeleted = true;
-                        break;
+                        this.setChanged();
+                        this.notifyObservers();
+                        return true;
+
                     }
                 }
             }
@@ -302,8 +337,10 @@ public class InventoryModel extends Observable {
                     if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
                         foundGood = item;
                         warehouseSuperMarket.refrigeratedgoods.remove(foundGood);
-                        itemDeleted = true;
-                        break;
+                        this.setChanged();
+                        this.notifyObservers();
+                        return true;
+
                     }
                 }
             }
@@ -313,14 +350,16 @@ public class InventoryModel extends Observable {
                     if (item.getStockCode() == stockCodeSearchable && item.getDescription().equals(description)) {
                         foundGood = item;
                         warehouseSuperMarket.roomtemperaturegoods.remove(foundGood);
-                        itemDeleted = true;
-                        break;
+                        this.setChanged();
+                        this.notifyObservers();
+                        return true;
+
                     }
                 }
             }
             this.setChanged();
             this.notifyObservers();
-            return itemDeleted;
+            return false;
         } catch (NumberFormatException e) {
             System.out.println("Error parsing input values: " + e.getMessage());
             return false;
@@ -343,13 +382,12 @@ public class InventoryModel extends Observable {
         try {
             stockCode = Integer.parseInt(goodsData[0]);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid stock code format.", e);
+            return goodsItem;
+
         }
 
-        String description = goodsData[1];
-
         for (Goods item : warehouseSuperMarket.frozengoods) {
-            if (item.getStockCode() == stockCode && item.getDescription().equals(description)) {
+            if (item.getStockCode() == stockCode) {
                 goodsItem = item;
                 break;
             }
@@ -357,7 +395,7 @@ public class InventoryModel extends Observable {
 
         if (goodsItem == null) {
             for (Goods item : warehouseSuperMarket.flammablegoods) {
-                if (item.getStockCode() == stockCode && item.getDescription().equals(description)) {
+                if (item.getStockCode() == stockCode) {
                     goodsItem = item;
                     break;
                 }
@@ -366,7 +404,7 @@ public class InventoryModel extends Observable {
 
         if (goodsItem == null) {
             for (Goods item : warehouseSuperMarket.refrigeratedgoods) {
-                if (item.getStockCode() == stockCode && item.getDescription().equals(description)) {
+                if (item.getStockCode() == stockCode) {
                     goodsItem = item;
                     break;
                 }
@@ -375,7 +413,7 @@ public class InventoryModel extends Observable {
 
         if (goodsItem == null) {
             for (Goods item : warehouseSuperMarket.roomtemperaturegoods) {
-                if (item.getStockCode() == stockCode && item.getDescription().equals(description)) {
+                if (item.getStockCode() == stockCode) {
                     goodsItem = item;
                     break;
                 }
@@ -389,6 +427,16 @@ public class InventoryModel extends Observable {
 
         return goodsItem;
 
+    }
+
+    public boolean isStockCodePrimaryKey(String[] goodsData) {
+        Goods checkGoodDoesNotExist = findGood(goodsData);
+
+        if (checkGoodDoesNotExist == null) {
+            return true;
+        }
+
+        return false;
     }
 
 }

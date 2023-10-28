@@ -23,9 +23,10 @@ import javax.swing.SwingConstants;
  *
  * @author Avraam
  */
-public class DeleteGoodsPanel extends JPanel implements Observer {private JTextField[] textFields;
-    
-    
+public class DeleteGoodsPanel extends JPanel implements Observer {
+
+    private JTextField[] textFields;
+
     private int cols = 2;
     private String[] columnLabels = {"STOCK CODE", "Goods Item description"};
     private String[] data;
@@ -38,7 +39,7 @@ public class DeleteGoodsPanel extends JPanel implements Observer {private JTextF
     }
 
     public DeleteGoodsPanel(InventoryModel model) {
-         this.model = model;
+        this.model = model;
         model.addObserver(this);
         data = new String[cols];
         setLayout(new BorderLayout());
@@ -98,13 +99,14 @@ public class DeleteGoodsPanel extends JPanel implements Observer {private JTextF
         for (int j = 0; j < cols; j++) {
             data[j] = textFields[j].getText();
             System.out.println("Data at column " + j + " = " + data[j]);
+            textFields[j].setText("");
+
         }
+
     }
 
     public void addDeleteGoodsButtonActionListener(ActionListener listener) {
-        Exception e = new Exception("addMoveGoodsButtonListener called");
-        e.printStackTrace();
-        System.out.println("ActionListeners added");
+
         deleteGoodsButton.addActionListener(listener);
     }
 
@@ -121,17 +123,17 @@ public class DeleteGoodsPanel extends JPanel implements Observer {private JTextF
         JOptionPane.showMessageDialog(this, "Goods Deleted");
     }
 
-    public void errorCheckStockNumber() {
-        JOptionPane.showMessageDialog(this, "Error Check stock number and description");
+    public void errorInvalidFields() {
+        JOptionPane.showMessageDialog(this, "Pleas enter valid values into fields");
     }
 
     public void errorCheckQuantitiesInExistingInventory() {
-        JOptionPane.showMessageDialog(this, "Error Check if exists in inventory");
+        JOptionPane.showMessageDialog(this, "Error Check Quantities in Existing Inventory, make sure values are correct.");
     }
 
     @Override
     public void update(Observable o, Object arg) {
-        
+
     }
-    
+
 }

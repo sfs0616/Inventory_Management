@@ -122,8 +122,8 @@ public class InventoryView extends JFrame{
         inventoryPanel.addRefrigeratedButtonListener(controller);
         inventoryPanel.addRoomTemperatureButtonListener(controller);
         inventoryPanel.addAddCartonizedGoodsButtonListener(controller);
-        inventoryPanel.addChangePalletsButtonListener(controller);
-        inventoryPanel.addChangeSupermarketShelvesButtonListener(controller);
+//        inventoryPanel.addChangePalletsButtonListener(controller);
+//        inventoryPanel.addChangeSupermarketShelvesButtonListener(controller);
         inventoryPanel.addMoveGoodsButtonListener(controller);
         addCartonGoodsPanel.addSubmitButtonListener(controller);
         addCartonGoodsPanel.addGoBackButtonActionListener(controller);

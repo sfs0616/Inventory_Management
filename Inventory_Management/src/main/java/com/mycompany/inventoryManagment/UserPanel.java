@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -63,6 +64,8 @@ public class UserPanel extends JPanel {
         textField.addActionListener(listener);
     }
 
-    
+    public void errorUserNameMessage() {
+        JOptionPane.showMessageDialog(this, "Please enter appropriate username");
+    }
     
 }
