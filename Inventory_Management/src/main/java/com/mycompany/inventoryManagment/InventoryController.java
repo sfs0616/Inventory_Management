@@ -89,6 +89,9 @@ public class InventoryController implements ActionListener {
                         model.findUserGUI(username);
                         
                         view.getCardLayout().show(view.getCardPanel(), "InventoryPanel");
+                        
+                        view.getInventoryPanel().updateTableData(view.getInventoryPanel().getFrozengoods());
+                        view.getInventoryPanel().repaintTables();
                     }
 
                     break;

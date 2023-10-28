@@ -76,6 +76,8 @@ public class InventoryModel extends Observable {
                 warehouseSuperMarket.establishDatabaseManager();
                 warehouseSuperMarket.dbManager.establishConnection();
                 warehouseSuperMarket.loadDbTablesIntoInventory();
+                this.setChanged();
+                this.notifyObservers();
 
             }
         } else {

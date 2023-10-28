@@ -4,6 +4,7 @@
  */
 package com.mycompany.inventoryManagment;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -18,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -85,6 +87,8 @@ public class InventoryPanel extends JPanel implements Observer {
     }
 
     public InventoryPanel(InventoryModel model) {
+        
+        applyDarkMode();
         this.model = model;
         model.addObserver(this);
         deleteGoodsPanelButton = new JButton("DELETE GOODS FROM A LIST");
@@ -110,6 +114,10 @@ public class InventoryPanel extends JPanel implements Observer {
 
         table = new JTable(tableModel);
         scrollPane = new JScrollPane(table);
+        table.setBackground(new Color(60, 63, 65));
+        table.setForeground(Color.WHITE);
+        scrollPane = new JScrollPane(table);
+        scrollPane.getViewport().setBackground(new Color(60, 63, 65)); // Set background color of table's viewport
         add(scrollPane);
         setActionCommands();
 
@@ -155,6 +163,24 @@ public class InventoryPanel extends JPanel implements Observer {
         addBinGoods.setActionCommand("AddBinGoods");
         deleteGoodsPanelButton.setActionCommand("Show Delete Goods Panel");
 
+    }
+    
+    
+     private void applyDarkMode() {
+        setBackground(new Color(60, 63, 65));
+        setForeground(Color.WHITE);
+
+        UIManager.put("Panel.background", new Color(60, 63, 65));
+        UIManager.put("Panel.foreground", Color.WHITE);
+        UIManager.put("Button.background", new Color(77, 77, 77));
+        UIManager.put("Button.foreground", Color.WHITE);
+        UIManager.put("Table.background", new Color(60, 63, 65));
+        UIManager.put("Table.foreground", Color.WHITE);
+        UIManager.put("Table.gridColor", new Color(90, 90, 90));
+        UIManager.put("ScrollPane.background", new Color(60, 63, 65));
+        UIManager.put("ScrollPane.foreground", Color.WHITE);
+        UIManager.put("Viewport.background", new Color(60, 63, 65));
+        UIManager.put("Viewport.foreground", Color.WHITE);
     }
 
     @Override

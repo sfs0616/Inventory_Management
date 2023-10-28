@@ -5,6 +5,7 @@
 package com.mycompany.inventoryManagment;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
@@ -18,6 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 
 /**
  *
@@ -34,11 +36,18 @@ public class DeleteGoodsPanel extends JPanel implements Observer {
     private JButton goBack;
     private InventoryModel model;
 
+    private static final Color BACKGROUND_COLOR = new Color(60, 63, 65);
+    private static final Color FOREGROUND_COLOR = new Color(187, 187, 187);
+    private static final Color TEXTFIELD_BACKGROUND_COLOR = new Color(69, 73, 74);
+    private static final Color BUTTON_BACKGROUND_COLOR = new Color(77, 80, 82);
+    private static final Color LABEL_FOREGROUND_COLOR = FOREGROUND_COLOR;
+
     public String[] getData() {
         return data;
     }
 
     public DeleteGoodsPanel(InventoryModel model) {
+        setBackground(BACKGROUND_COLOR);
         this.model = model;
         model.addObserver(this);
         data = new String[cols];
@@ -64,16 +73,21 @@ public class DeleteGoodsPanel extends JPanel implements Observer {
         // Add labels
         for (int j = 0; j < cols; j++) {
             JLabel label = new JLabel(columnLabels[j], SwingConstants.CENTER);
+            label.setForeground(LABEL_FOREGROUND_COLOR);
             labelPanel.add(label);
         }
 
         this.setActionCommands();
 
-        // Add text fields with the width of the longest label
+        // Add text fields
         for (int j = 0; j < cols; j++) {
             textFields[j] = new JTextField();
             textFields[j].setPreferredSize(new Dimension(maxWidth, textFields[j].getPreferredSize().height));
+            textFields[j].setBackground(TEXTFIELD_BACKGROUND_COLOR);
+            textFields[j].setForeground(FOREGROUND_COLOR);
+            textFields[j].setCaretColor(FOREGROUND_COLOR);
             fieldPanel.add(textFields[j]);
+
         }
 
         JPanel inputPanel = new JPanel();
@@ -93,6 +107,12 @@ public class DeleteGoodsPanel extends JPanel implements Observer {
         add(centerPanel, BorderLayout.CENTER);
         add(southPanel, BorderLayout.SOUTH);
         add(northRightPanel, BorderLayout.NORTH);
+
+        deleteGoodsButton.setBackground(BUTTON_BACKGROUND_COLOR);
+        deleteGoodsButton.setForeground(FOREGROUND_COLOR);
+
+        goBack.setBackground(BUTTON_BACKGROUND_COLOR);
+        goBack.setForeground(FOREGROUND_COLOR);
     }
 
     public void submitData() {
@@ -115,19 +135,29 @@ public class DeleteGoodsPanel extends JPanel implements Observer {
     }
 
     public void setActionCommands() {
+
         deleteGoodsButton.setActionCommand("Delete Goods");
         goBack.setActionCommand("GoBack");
     }
 
     public void goodsDeletedMessage() {
+        UIManager.put("OptionPane.background", BACKGROUND_COLOR);
+        UIManager.put("Panel.background", BACKGROUND_COLOR);
+        UIManager.put("OptionPane.messageForeground", FOREGROUND_COLOR);
         JOptionPane.showMessageDialog(this, "Goods Deleted");
     }
 
     public void errorInvalidFields() {
+        UIManager.put("OptionPane.background", BACKGROUND_COLOR);
+        UIManager.put("Panel.background", BACKGROUND_COLOR);
+        UIManager.put("OptionPane.messageForeground", FOREGROUND_COLOR);
         JOptionPane.showMessageDialog(this, "Pleas enter valid values into fields");
     }
 
     public void errorCheckQuantitiesInExistingInventory() {
+        UIManager.put("OptionPane.background", BACKGROUND_COLOR);
+        UIManager.put("Panel.background", BACKGROUND_COLOR);
+        UIManager.put("OptionPane.messageForeground", FOREGROUND_COLOR);
         JOptionPane.showMessageDialog(this, "Error Check Quantities in Existing Inventory, make sure values are correct.");
     }
 
