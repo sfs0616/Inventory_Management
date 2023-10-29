@@ -15,11 +15,26 @@ import java.util.Scanner;
  *
  * @author Avraam
  */
+/**
+ * InventoryModel is the core class that handles the business logic of the
+ * inventory management system. It interacts with various other classes to
+ * perform operations like adding goods, moving items between the warehouse and
+ * shelf, saving data, and more. The class extends Observable, enabling it to
+ * notify observers (typically the UI) when changes occur that they need to be
+ * aware of.
+ */
 public class InventoryModel extends Observable {
+    // Warehouse object to store all the inventory lists like frozen goods, flammable goods, etc.
 
     private InventoryLists warehouseSuperMarket;
+
+    // UserManagement object to handle user related functionalities.
     private UserManagement userManagement;
+
+    // User object representing the current user.
     private User userToWrite;
+
+    // Stock code of the goods item to be moved.
     private int moveGoodsStockCode = 0;
 
     public InventoryLists getWarehouseSuperMarket() {
@@ -42,15 +57,21 @@ public class InventoryModel extends Observable {
         return moveGoodsStockCode;
     }
 
+    // Constructor to initialize the InventoryModel object.
     public InventoryModel() {
         try {
+            // Creating instances of UserManagement and InventoryLists.
             this.userManagement = new UserManagement();
             this.warehouseSuperMarket = new InventoryLists();
+
+            // Loading user data from the file.
             this.userManagement.loadFromFile("users.dat");
         } catch (SQLException e) {
+            // Logging an error message if something goes wrong during initialization.
             System.out.println("Error initializing the InventoryModel: " + e.getMessage());
         }
     }
+    // Method to find and load user data based on the username provided via the GUI.
 
     public void findUserGUI(String username) {
 
@@ -88,7 +109,6 @@ public class InventoryModel extends Observable {
             userManagement.addUser(userToWrite);
             warehouseSuperMarket.setUser(userToWrite);
             warehouseSuperMarket.establishDatabaseManager();
-            
 
             // Create a directory for the new user
             String userDirectoryPath = System.getProperty("user.dir") + File.separator + username;
@@ -104,19 +124,18 @@ public class InventoryModel extends Observable {
             Boolean userDat = warehouseSuperMarket.dbManager.checkURLexists();
             warehouseSuperMarket.dbManager.checkDbUrlConnection();
             warehouseSuperMarket.dbManager.establishConnection();
-        if (userDat == true) {
-            System.out.println("Database for new user created.");
-            this.setChanged();
-            this.notifyObservers();
-        } else {
-            System.out.println("Error connecting to new user db, line 109 InventoryModel");
-        }
+            if (userDat == true) {
+                System.out.println("Database for new user created.");
+                this.setChanged();
+                this.notifyObservers();
+            } else {
+                System.out.println("Error connecting to new user db, line 109 InventoryModel");
+            }
 
         }
-
-       
 
     }
+    // Method to add bin goods based on data provided via the GUI.
 
     public Boolean addBinGoodsGUI(String[] goods) {
         //STOCK_CODE INT, PRODUCT_DESCRIPTION VARCHAR(100), STORAGE_TYPE
@@ -154,6 +173,7 @@ public class InventoryModel extends Observable {
         this.notifyObservers();
         return true;
     }
+    // Method to add carton goods based on data provided via the GUI.
 
     public Boolean addCartonGoodsGUI(String[] goods) {
 
@@ -191,6 +211,7 @@ public class InventoryModel extends Observable {
         return true;
 
     }
+    // Method to save goods data and perform clean up when the GUI is closed.
 
     ///The saveGoodsDataGUI method should be triggered on close operation of the gui to ensure that all data is saved correctly. 
     public void saveGoodsDataGUI() throws IOException {
@@ -214,6 +235,7 @@ public class InventoryModel extends Observable {
             System.out.println("Unexpected error while saving goods data: " + e.getMessage());
         }
     }
+    // Method to move an item from the warehouse to the shelf based on data provided via the GUI.
 
     public Boolean moveItemFromWarehouseToShelfGUI(String[] itemsToBeMoved) {
         Boolean itemFound = false;
@@ -300,6 +322,7 @@ public class InventoryModel extends Observable {
 
         return false;
     }
+    // Method to delete a goods item based on data provided via the GUI.
 
     public Boolean deleteGoodsItemGUI(String[] itemsToDeleted) {
 
@@ -372,6 +395,7 @@ public class InventoryModel extends Observable {
 
     }
 
+    // Method to find a goods item based on the stock code and description provided.
     public Goods findGood(String[] goodsData) {
 
         if (goodsData == null || goodsData.length < 2) {
@@ -430,6 +454,7 @@ public class InventoryModel extends Observable {
         return goodsItem;
 
     }
+    // Method to check if a stock code is already used as a primary key for any goods item.
 
     public boolean isStockCodePrimaryKey(String[] goodsData) {
         Goods checkGoodDoesNotExist = findGood(goodsData);

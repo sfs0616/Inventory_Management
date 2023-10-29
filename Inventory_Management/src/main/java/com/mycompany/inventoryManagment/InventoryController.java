@@ -17,44 +17,65 @@ import javax.swing.SwingUtilities;
  *
  * @author Avraam
  */
+/**
+ * InventoryController is responsible for handling user interactions
+ * and updating the view and model as needed.
+ * It implements ActionListener to handle button click events.
+ */
 public class InventoryController implements ActionListener {
-
+    // Model that handles data and business logic
     private InventoryModel model;
 
+    // View that displays the user interface
     private InventoryView view;
 
+    /**
+     * Constructor to initialize the controller with the model and view.
+     * @param model The inventory model.
+     * @param view The inventory view.
+     */
     public InventoryController(InventoryModel model, InventoryView view) {
         this.model = model;
         this.view = view;
         view.setVisible(true);
 
+        // Adding a window listener to handle window closing events
         view.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 try {
+                    // Handle window closing and save data if needed
                     handleWindowClosing();
                 } catch (IOException ex) {
+                    // Log an error if an exception occurs
                     Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
-
     }
 
+    /**
+     * Handle the window closing event.
+     * If the user is logged in, save the goods data before exiting.
+     * @throws IOException If an I/O error occurs.
+     */
     private void handleWindowClosing() throws IOException {
-        if(model.getWarehouseSuperMarket().getUser() != null)
-        {
+        if (model.getWarehouseSuperMarket().getUser() != null) {
             model.saveGoodsDataGUI();
         }
-        
-        System.exit(0); // Optionally, exit the application
+        // Optionally, exit the application
+        System.exit(0);
     }
 
+    /**
+     * Initialize the controller and set its visibility.
+     */
     public void initializeController() {
         view.addController(this);
         view.setVisible(true);
     }
 
+    // Getter and setter methods for model and view
     public void addModel(InventoryModel model) {
         this.model = model;
     }
@@ -75,6 +96,10 @@ public class InventoryController implements ActionListener {
         this.view = view;
     }
 
+    /**
+     * Handle button click events.
+     * @param e The action event.
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand(); // Get the action command of the clicked button

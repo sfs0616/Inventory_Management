@@ -9,7 +9,7 @@ import java.sql.SQLException;
 /**
  *
  * @author Avraam
- */
+ *///Main run method for the GUI.
 public class InventoryRunGUI {
     public static void main(String[] args) throws SQLException {
         InventoryModel model = new InventoryModel();

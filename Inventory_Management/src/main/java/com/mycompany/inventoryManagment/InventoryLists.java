@@ -28,12 +28,14 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
- * A class representing the inventory lists for different storage types. This
- * class implements the InventoryManager and InventoryReaderWriter interfaces,
- * providing methods to manage the inventory, including changing the number of
- * pallets and shelves, adding goods, printing the inventory, and more. It also
- * maintains separate lists for different storage types such as frozen,
- * refrigerated, room temperature, and flammable goods.
+ * UPDATE: THIS CLASS ALSO CONTAINS METHODS FOR DATABASE INTERECTIONS WITH
+ * INVENTORY LISTS A class representing the inventory lists for different
+ * storage types. This class implements the InventoryManager and
+ * InventoryReaderWriter interfaces, providing methods to manage the inventory,
+ * including changing the number of pallets and shelves, adding goods, printing
+ * the inventory, and more. It also maintains separate lists for different
+ * storage types such as frozen, refrigerated, room temperature, and flammable
+ * goods.
  *
  * The methods in this class allow for inventory management functionalities such
  * as changing storage capacity, adding goods, and printing the inventory for
@@ -83,10 +85,8 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
 
     public void establishDatabaseManager() {
         dbManager = new InventoryDatabaseManager(user);
-        
+
     }
-    
-   
 
     /**
      * Get the current user.
@@ -242,6 +242,7 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
             System.out.println(goods.toString());
         }
     }
+//This was an existing method for the CUI but may not be needed anymore for GUI:
 
     /**
      * Adds palletized goods to the inventory. This method prompts the user to
@@ -460,8 +461,8 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
     /**
      *
      * Searches goods arrays for goods matching stock code, returns goods data
-     * to user and then asks them to input what quantity they want to move.
-     *
+     * to user and then asks them to input what quantity they want to move. THIS
+     * IS A CUI METHOD
      *
      */
     @Override
@@ -929,12 +930,23 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
         Collections.sort(this.roomtemperaturegoods);
     }
 
+    /**
+     * This method is used to add a cartonized goods item to the database.
+     *
+     * @param goods The cartonized goods item to be added to the database.
+     * @param tableName The name of the table in the database where the goods
+     * item should be added.
+     * @throws SQLException If any SQL error occurs during the execution of the
+     * query.
+     */
     public void dbAddCartonizedGoods(Goods goods, String tableName) throws SQLException {
-
-        PreparedStatement insertStmt;
+        // Preparing the SQL statement for insertion
         String insertSQL = "INSERT INTO " + tableName + " (STOCK_CODE, PRODUCT_DESCRIPTION, STORAGE_TYPE, WAREHOUSE_BAY_NUM, SUPERMARKET_BAY_NUM, CURRENT_GOODS_WAREHOUSE_CARTONIZED, CURRENT_CARTONS_TOTAL, CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        // Getting the storage type as a string
         String productStorage = String.valueOf(goods.getStorageType());
-        insertStmt = dbManager.conn.prepareStatement(insertSQL);
+        // Preparing the SQL statement with the provided database connection
+        PreparedStatement insertStmt = dbManager.conn.prepareStatement(insertSQL);
+        // Setting the values for the prepared statement
         insertStmt.setInt(1, goods.getStockCode());
         insertStmt.setString(2, goods.getDescription());
         insertStmt.setString(3, productStorage);
@@ -943,15 +955,27 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
         insertStmt.setInt(6, ((CartonizedGoods) goods).getCurrentGoodsNumber());
         insertStmt.setInt(7, ((CartonizedGoods) goods).getCurrentCartonsNumber());
         insertStmt.setInt(8, ((CartonizedGoods) goods).getCurrentNumberOfItemsOnShelf());
+        // Executing the update query to insert the data into the database
         insertStmt.executeUpdate();
     }
 
+    /**
+     * This method is used to add a bin goods item to the database.
+     *
+     * @param goods The bin goods item to be added to the database.
+     * @param tableName The name of the table in the database where the goods
+     * item should be added.
+     * @throws SQLException If any SQL error occurs during the execution of the
+     * query.
+     */
     public void dbAddBinGoods(Goods goods, String tableName) throws SQLException {
-
-        PreparedStatement insertStmt;
+        // Preparing the SQL statement for insertion
         String insertSQL = "INSERT INTO " + tableName + " (STOCK_CODE, PRODUCT_DESCRIPTION, STORAGE_TYPE, WAREHOUSE_BAY_NUM, SUPERMARKET_BAY_NUM, CURRENT_KG_WAREHOUSE_BIN, CURRENT_KG_SHELF_BIN) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Getting the storage type as a string
         String productStorage = String.valueOf(goods.getStorageType());
-        insertStmt = dbManager.conn.prepareStatement(insertSQL);
+        // Preparing the SQL statement with the provided database connection
+        PreparedStatement insertStmt = dbManager.conn.prepareStatement(insertSQL);
+        // Setting the values for the prepared statement
         insertStmt.setInt(1, goods.getStockCode());
         insertStmt.setString(2, goods.getDescription());
         insertStmt.setString(3, productStorage);
@@ -959,42 +983,79 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
         insertStmt.setInt(5, goods.getSupermarketBayNumber());
         insertStmt.setDouble(6, ((BinGoodsOnPallet) goods).getCurrentKgPerBin());
         insertStmt.setDouble(7, ((BinGoodsOnPallet) goods).getCurrentKgOnShelf());
+        // Executing the update query to insert the data into the database
         insertStmt.executeUpdate();
     }
 
+    /**
+     * This method is used to check the values of a cartonized goods item in the
+     * database and update them if they are different.
+     *
+     * @param rs The ResultSet containing the current data from the database for
+     * a specific goods item.
+     * @param good The goods item to compare with the database values.
+     * @param tableName The name of the table in the database where the goods
+     * item is stored.
+     * @throws SQLException If any SQL error occurs during the execution of the
+     * query.
+     */
     public void checkDbGoodsValuesCartonized(ResultSet rs, Goods good, String tableName) throws SQLException {
+        // Checking if the values in the database are different from the object's values
         if (rs.getInt("CURRENT_GOODS_WAREHOUSE_CARTONIZED") != ((CartonizedGoods) good).getCurrentGoodsNumber()
                 || rs.getInt("CURRENT_CARTONS_TOTAL") != ((CartonizedGoods) good).getCurrentCartonsNumber()
                 || rs.getInt("CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED") != ((CartonizedGoods) good).getCurrentNumberOfItemsOnShelf()) {
 
+            // Preparing the SQL statement for update
             String updateSQL = "UPDATE " + tableName + " SET CURRENT_GOODS_WAREHOUSE_CARTONIZED = ?, CURRENT_CARTONS_TOTAL = ?, CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED = ? WHERE STOCK_CODE = ?";
+            // Using try-with-resources to ensure that resources are closed after execution
             try ( PreparedStatement updateStmt = dbManager.conn.prepareStatement(updateSQL)) {
+                // Setting the values for the prepared statement
                 updateStmt.setInt(1, ((CartonizedGoods) good).getCurrentGoodsNumber());
                 updateStmt.setInt(2, ((CartonizedGoods) good).getCurrentCartonsNumber());
                 updateStmt.setInt(3, ((CartonizedGoods) good).getCurrentNumberOfItemsOnShelf());
                 updateStmt.setInt(4, good.getStockCode());
-
+                // Executing the update query to update the data in the database
                 updateStmt.executeUpdate();
             }
         }
-
     }
 
+    /**
+     * This method is used to check the values of a bin goods item in the
+     * database and update them if they are different.
+     *
+     * @param rs The ResultSet containing the current data from the database for
+     * a specific goods item.
+     * @param good The goods item to compare with the database values.
+     * @param tableName The name of the table in the database where the goods
+     * item is stored.
+     * @throws SQLException If any SQL error occurs during the execution of the
+     * query.
+     */
     public void checkDbGoodsValuesBin(ResultSet rs, Goods good, String tableName) throws SQLException {
+        // Checking if the values in the database are different from the object's values
         if (rs.getDouble("CURRENT_KG_WAREHOUSE_BIN") != ((BinGoodsOnPallet) good).getCurrentKgPerBin()
                 || rs.getDouble("CURRENT_KG_SHELF_BIN") != ((BinGoodsOnPallet) good).getCurrentKgOnShelf()) {
 
+            // Preparing the SQL statement for update
             String updateSQL = "UPDATE " + tableName + " SET CURRENT_KG_WAREHOUSE_BIN = ?, CURRENT_KG_SHELF_BIN = ? WHERE STOCK_CODE = ?";
+            // Using try-with-resources to ensure that resources are closed after execution
             try ( PreparedStatement updateStmt = dbManager.conn.prepareStatement(updateSQL)) {
+                // Setting the values for the prepared statement
                 updateStmt.setDouble(1, ((BinGoodsOnPallet) good).getCurrentKgPerBin());
                 updateStmt.setDouble(2, ((BinGoodsOnPallet) good).getCurrentKgOnShelf());
                 updateStmt.setInt(3, good.getStockCode());
+                // Executing the update query to update the data in the database
                 updateStmt.executeUpdate();
             }
         }
-
     }
 
+    /**
+     * This method is responsible for synchronizing the in-memory representation
+     * of goods with their respective entries in the database. It does this by
+     * calling syncObjectsToDB for different categories of goods.
+     */
     public void syncDatabase() {
         syncObjectsToDB(flammablegoods, "FLAMMABLE_GOODS");
         syncObjectsToDB(frozengoods, "FROZEN_GOODS");
@@ -1002,27 +1063,33 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
         syncObjectsToDB(roomtemperaturegoods, "ROOM_TEMP_GOODS");
     }
 
+    /**
+     * Synchronizes a list of goods with their database entries. If an item
+     * exists in the database, it checks if the values need updating. If the
+     * item does not exist, it is added to the database.
+     *
+     * @param goodsArray The list of goods to be synchronized.
+     * @param tableName The name of the database table to sync with.
+     */
     public void syncObjectsToDB(ArrayList<Goods> goodsArray, String tableName) {
-        //dbManager.checkURLexists()
-
+        // Iterating through the list of goods
         try {
             for (Goods goods : goodsArray) {
                 String checkSQL = "SELECT * FROM " + tableName + " WHERE STOCK_CODE = ?";
-
+                // Preparing a statement to check if the goods exist in the DB
                 try ( PreparedStatement checkStmt = dbManager.conn.prepareStatement(checkSQL)) {
                     checkStmt.setInt(1, goods.getStockCode());
-
+                    // Executing the query
                     try ( ResultSet rs = checkStmt.executeQuery()) {
                         if (!rs.next()) {
-                            // Insert new row
-
+                            // If the goods do not exist, insert them
                             if (goods instanceof CartonizedGoods) {
                                 dbAddCartonizedGoods(goods, tableName);
-
                             } else if (goods instanceof BinGoodsOnPallet) {
                                 dbAddBinGoods(goods, tableName);
                             }
                         } else {
+                            // If the goods exist, check and update their values if necessary
                             if (goods instanceof CartonizedGoods) {
                                 checkDbGoodsValuesCartonized(rs, goods, tableName);
                             } else if (goods instanceof BinGoodsOnPallet) {
@@ -1033,14 +1100,24 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
                 }
             }
         } catch (SQLException e) {
+            // Handle any SQL exceptions
             System.err.println("Error syncing objects to DB: " + e.getMessage());
         }
     }
 
+    /**
+     * This method is a wrapper around readInDbInventoryLists, initiating the
+     * loading of database tables into in-memory lists representing the
+     * inventory.
+     */
     public void loadDbTablesIntoInventory() {
         readInDbInventoryLists();
     }
 
+    /**
+     * Loads various categories of goods from their respective database tables
+     * into in-memory lists.
+     */
     public void readInDbInventoryLists() {
         this.readDbGoods(frozengoods, "FROZEN_GOODS");
         this.readDbGoods(flammablegoods, "FLAMMABLE_GOODS");
@@ -1048,14 +1125,18 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
         this.readDbGoods(roomtemperaturegoods, "ROOM_TEMP_GOODS");
     }
 
+    /**
+     * Reads entries from a specific goods table in the database and loads them
+     * into an in-memory list.
+     *
+     * @param goods The list to store the loaded goods objects.
+     * @param tableName The name of the database table to load from.
+     */
     public void readDbGoods(ArrayList<Goods> goods, String tableName) {
-
-        try (
-                 PreparedStatement pstmt = dbManager.conn.prepareStatement("SELECT * FROM " + tableName)) {
-
+        try ( PreparedStatement pstmt = dbManager.conn.prepareStatement("SELECT * FROM " + tableName)) {
             ResultSet rs = pstmt.executeQuery();
-
             while (rs.next()) {
+                // Extracting values from the ResultSet
                 int stockCode = rs.getInt("STOCK_CODE");
                 String description = rs.getString("PRODUCT_DESCRIPTION");
                 String storageTypeString = rs.getString("STORAGE_TYPE");
@@ -1065,32 +1146,34 @@ public class InventoryLists implements InventoryManager, InventoryReaderWriter {
                 char storageType = storageTypeString.charAt(0);
                 int wareHouseBayNum = rs.getInt("WAREHOUSE_BAY_NUM");
                 int superMarketBayNum = rs.getInt("SUPERMARKET_BAY_NUM");
-                //For Carton goods. 
+
+                // If the current goods are cartonized goods
                 int currentGoodsWarehouse = rs.getInt("CURRENT_GOODS_WAREHOUSE_CARTONIZED");
                 if (rs.wasNull()) {
+                    // If it's null, the goods are bin goods
                     double currentKgInWareHouse = rs.getDouble("CURRENT_KG_WAREHOUSE_BIN");
                     double currentKgOnShelf = rs.getDouble("CURRENT_KG_SHELF_BIN");
                     BinGoodsOnPallet binItem = new BinGoodsOnPallet(currentKgInWareHouse, 1000, 100, currentKgOnShelf, stockCode, description, storageType, wareHouseBayNum, superMarketBayNum);
                     goods.add(binItem);
                 } else {
-
+                    // If it's not null, the goods are cartonized goods
                     int currentShelfItems = rs.getInt("CURRENT_TOTAL_ITEMS_SHELF_CARTONIZED");
                     CartonizedGoods cartonItem = new CartonizedGoods(1000, 10, currentGoodsWarehouse, 100, currentShelfItems, stockCode, description, storageType, wareHouseBayNum, superMarketBayNum);
                     goods.add(cartonItem);
                 }
-
             }
+            // Informing that the table has been successfully loaded
             System.out.println("Table loaded: " + tableName);
         } catch (Exception e) {
+            // Handling any exceptions and printing the stack trace for debugging
             System.err.println("Error occurred while reading from the database: " + e.getMessage());
             e.printStackTrace();
         }
-
     }
 
     @Override
     public void addGoods() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        //Method not used currently
     }
 
 }

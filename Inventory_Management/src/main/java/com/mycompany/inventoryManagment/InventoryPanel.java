@@ -43,15 +43,15 @@ public class InventoryPanel extends JPanel implements Observer {
     };
     private JTable table;
     private JScrollPane scrollPane = new JScrollPane(table);
-    private JButton frozenButton; //When this button is clicked the inventory for frozen goods is displayed in the Jtable
-    private JButton flammableButton; //When this button is clicked the inventory for flammable goods is displayed in the Jtable
-    private JButton refrigeratedButton;//When this button is clicked the inventory for refrigerated goods is displayed in the Jtable
-    private JButton roomTemperatureButton;//When this button is clicked the inventory for room temperature goods is displayed in the Jtable
-    private JButton addCartonizedGoods; //When this button is clicked it triggers the addCartonizedGoods method in the model;
+    private JButton frozenButton; 
+    private JButton flammableButton; 
+    private JButton refrigeratedButton;
+    private JButton roomTemperatureButton;
+    private JButton addCartonizedGoods; 
     private JButton addBinGoods;
-//    private JButton changePallets; //When this button is good it triggers the changePallets method in the model;
-//    private JButton changeSupermarketShelves; //When this button is clicked it triggers the change number of supermarket shelves method in the model 
-    private JButton moveGoods; // When this button is clicked the movegoods method is triggered
+
+
+    private JButton moveGoods; 
     private JButton deleteGoodsPanelButton;
 
     public ArrayList<Goods> getFrozengoods() {
@@ -165,7 +165,7 @@ public class InventoryPanel extends JPanel implements Observer {
 
     }
     
-    
+    //Apply paint components to the UI manager. 
      private void applyDarkMode() {
         setBackground(new Color(60, 63, 65));
         setForeground(Color.WHITE);
@@ -183,6 +183,8 @@ public class InventoryPanel extends JPanel implements Observer {
         UIManager.put("Viewport.foreground", Color.WHITE);
     }
 
+     
+    //Update arrays in the InventoryPanel class so that they can be dispayed in the inventory lists when changes happen to the model inventory lists. 
     @Override
     public void update(Observable o, Object arg) {
 
@@ -192,7 +194,7 @@ public class InventoryPanel extends JPanel implements Observer {
         this.setRoomtemperaturegoods(model.getWarehouseSuperMarket().getRoomtemperaturegoods());
         repaintTables();
     }
-
+//repaind the tables when an update occurs. 
     public void repaintTables() {
         updateTableData(frozengoods);
         updateTableData(flammablegoods);
@@ -200,7 +202,7 @@ public class InventoryPanel extends JPanel implements Observer {
         updateTableData(flammablegoods);
         repaint();
     }
-
+//Update the text data to be displayed on screen for the arrays. 
     public void updateTableData(ArrayList<Goods> goods) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -227,7 +229,7 @@ public class InventoryPanel extends JPanel implements Observer {
             }
         });
     }
-
+//Methods to add actionlisteners to the buttons.
     public void addFrozenButtonListener(ActionListener listener) {
         frozenButton.addActionListener(listener);
     }

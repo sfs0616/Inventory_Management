@@ -42,11 +42,11 @@ public class User implements Serializable {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-    
+    //Method to retrieve the Database URL for the user 
     public String getDatabaseURL(){
         return this.databaseURL;
     }
-
+//Method to set the datbase URL for the user
     public void setDatabaseURL(String databaseURL) {
         this.databaseURL = databaseURL;
     }

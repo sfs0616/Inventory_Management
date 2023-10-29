@@ -25,6 +25,7 @@ import javax.swing.UIManager;
  *
  * @author Avraam
  */
+//This class uses the same formatting as the other panel classes. 
 public class MoveGoodsPanel extends JPanel implements Observer {
 
     private JTextField[] textFields;

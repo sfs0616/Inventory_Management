@@ -19,6 +19,8 @@ import javax.swing.UIManager;
  *
  * @author Avraam
  */
+
+//The user Panel class uses the same formatting as the other panel classes. 
 public class UserPanel extends JPanel {
 
     InventoryModel model;
